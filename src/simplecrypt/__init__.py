@@ -1,12 +1,13 @@
-
+from functools import reduce
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
 
 COUNT = 1000
-AES_KEY_LEN = 256//8  # pycrypto uses bytes, not bits
+AES_KEY_LEN = 256
 HMAC_HASH = SHA256
 COUNTER_SIZE = 128
 
@@ -31,12 +32,14 @@ def encrypt(salt, password, data):
 
     @return: The encrypted data, as bytes.
     '''
-    raise Exception('do not use - where is nonce?')
     key = _expand_key(salt, password)
-    cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(COUNTER_SIZE))
+    offset = getrandbits(COUNTER_SIZE)
+    counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
+    cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     ctext = cipher.encrypt(data)
-    hmac = HMAC.new(key, ctext, HMAC_HASH).digest()
-    return ctext + hmac
+    prefix = bytes(_offset_to_bytes(offset))
+    hmac = HMAC.new(key, prefix + ctext, HMAC_HASH).digest()
+    return prefix + ctext + hmac
 
 
 def decrypt(salt, password, ctext):
@@ -63,10 +66,20 @@ def decrypt(salt, password, ctext):
     hmac2 = HMAC.new(key, ctext[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
     hmac = ctext[-HMAC_HASH.digest_size:]
     if hmac != hmac2: raise Exception("data were modified")
-    cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(COUNTER_SIZE))
-    ctext = ctext[:-HMAC_HASH.digest_size]
+    offset = _bytes_to_offset(ctext[:COUNTER_SIZE//8])
+    counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
+    cipher = AES.new(key, AES.MODE_CTR, counter=counter)
+    ctext = ctext[COUNTER_SIZE//8:-HMAC_HASH.digest_size]
     return cipher.decrypt(ctext)
 
 
 def _expand_key(salt, password):
-    return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN, count=COUNT)
+    return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=COUNT)
+
+def _offset_to_bytes(offset):
+    for _ in range(COUNTER_SIZE//8):
+        yield offset % 256
+        offset //= 256
+
+def _bytes_to_offset(bytes):
+    return reduce(lambda x, y: x * 256  +y, reversed(bytearray(bytes)))
