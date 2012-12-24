@@ -8,7 +8,7 @@ from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
 
-COUNT = 1000
+EXPANSION_COUNT = 1000
 AES_KEY_LEN = 256
 HMAC_HASH = SHA256
 COUNTER_SIZE = 128
@@ -75,7 +75,7 @@ def decrypt(salt, password, data):
 
 
 def _expand_key(salt, password):
-    return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=COUNT)
+    return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=EXPANSION_COUNT)
 
 def _offset_to_bytes(offset):
     for _ in range(COUNTER_SIZE//8):
