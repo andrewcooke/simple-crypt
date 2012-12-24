@@ -11,7 +11,6 @@ from Crypto.Util import Counter
 EXPANSION_COUNT = 1000
 AES_KEY_LEN = 256
 HMAC_HASH = SHA256
-COUNTER_SIZE = 128
 
 
 def encrypt(salt, password, data):
@@ -35,8 +34,8 @@ def encrypt(salt, password, data):
     @return: The encrypted data, as bytes.
     '''
     key = _expand_key(salt, password)
-    offset = getrandbits(COUNTER_SIZE)
-    counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
+    offset = getrandbits(AES.block_size*8)
+    counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
     prefix = bytes(_offset_to_bytes(offset))
@@ -68,17 +67,17 @@ def decrypt(salt, password, data):
     hmac = data[-HMAC_HASH.digest_size:]
     hmac2 = HMAC.new(key, data[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
     if hmac != hmac2: raise Exception("data were modified")
-    offset = _bytes_to_offset(data[:COUNTER_SIZE//8])
-    counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
+    offset = _bytes_to_offset(data[:AES.block_size])
+    counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
-    return cipher.decrypt(data[COUNTER_SIZE//8:-HMAC_HASH.digest_size])
+    return cipher.decrypt(data[AES.block_size:-HMAC_HASH.digest_size])
 
 
 def _expand_key(salt, password):
     return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=EXPANSION_COUNT)
 
 def _offset_to_bytes(offset):
-    for _ in range(COUNTER_SIZE//8):
+    for _ in range(AES.block_size):
         yield offset % 256
         offset //= 256
 

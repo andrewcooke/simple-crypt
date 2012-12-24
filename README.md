@@ -50,9 +50,9 @@ http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
   otherwise "as random as possible" (perhaps user or, at worst, application
   name).
 
-* AES256 CTR mode is used to encrypt the data.  A 128 bit, wraparound counter
-  is used, with a random initial offset.  The initial offset is prepended to
-  the encrypted message.
+* AES256 CTR mode is used to encrypt the data.  A wraparound counter is used,
+  with a random initial offset.  The initial offset is prepended to the
+  encrypted message.
 
 * A SHA256 HMAC (of initial offset plus encrypted message) is calculated and
   appended.  This uses the same key as the AES cipher.

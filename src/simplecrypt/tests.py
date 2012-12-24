@@ -1,11 +1,12 @@
 
 from unittest import TestCase
+from Crypto.Cipher import AES
 
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
-from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes, COUNTER_SIZE
+from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes
 
 
 class TestEncryption(TestCase):
@@ -68,7 +69,7 @@ class TestCounter(TestCase):
         self.assert_offset(256)
         self.assert_offset(2**128-1)
         for _ in range(100):
-            self.assert_offset(getrandbits(COUNTER_SIZE))
+            self.assert_offset(getrandbits(AES.block_size))
 
     def assert_offset(self, offset):
         result = _bytes_to_offset(_offset_to_bytes(offset))
