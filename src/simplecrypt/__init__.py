@@ -31,6 +31,7 @@ def encrypt(salt, password, data):
 
     @return: The encrypted data, as bytes.
     '''
+    raise Exception('do not use - where is nonce?')
     key = _expand_key(salt, password)
     cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(COUNTER_SIZE))
     ctext = cipher.encrypt(data)
