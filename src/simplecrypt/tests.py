@@ -44,6 +44,11 @@ class TestEncryption(TestCase):
         except Exception as e:
             assert 'modified' in str(e), e
 
+    def test_distinct(self):
+        enc1 = encrypt('salt', 'password', 'message')
+        enc2 = encrypt('salt', 'password', 'message')
+        assert enc1 != enc2
+
 
 class TestCounter(TestCase):
 
