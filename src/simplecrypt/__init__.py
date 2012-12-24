@@ -83,4 +83,4 @@ def _offset_to_bytes(offset):
         offset //= 256
 
 def _bytes_to_offset(bytes):
-    return reduce(lambda x, y: x * 256  +y, reversed(bytearray(bytes)))
+    return reduce(lambda x, y: x * 256 + y, reversed(bytearray(bytes)))
