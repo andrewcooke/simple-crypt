@@ -7,6 +7,38 @@ This provides two functions, which encrypt and decrypt data, delegating all
 the hard work to the [pycrypto](https://www.dlitz.net/software/pycrypto)
 library (which must also be installed).
 
+Example
+-------
+
+    from binascii import hexlify
+    from getpass import getpass
+    from sys import stdin
+
+    from simplecrypt import encrypt, decrypt
+
+    # read the password from the user (without displaying it)
+    password = getpass("password: ")
+
+    # read the (single line) message we will encrypt
+    print("message: ",)
+    message = stdin.readline()
+
+    # encrypt the message.  we explicitly convert to bytes first (optional)
+    encrypted = encrypt("somerandomsalt", password, message.encode('utf8'))
+
+    # the encrypted message is bytes, so we display it as a hex string
+    print("encrypted message:", hexlify(encrypted))
+
+    # now decrypt the message (using the same salt and password)
+    decrypted = decrypt("somerandomsalt", password, encrypted)
+
+    # the decrypted message is bytes, but we can convert it back to a string
+    print("decrypted message: %s" % decrypted)
+    print("decrypted string: %s" % decrypted.decode('utf8'))
+
+Algorithms
+----------
+
 The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 (plus http://en.wikipedia.org/wiki/PBKDF2), as far as I can tell:
