@@ -58,8 +58,7 @@ def decrypt(salt, password, data):
     @param password: A string, the secret value used as the basis for a key.
      This should be as long as varied as possible.  Try to avoid common words.
 
-    @param data: The data to be decrypted, typically as bytes.  You can pass
-     in a simple string, which will be encoded as utf8.
+    @param data: The data to be decrypted, typically as bytes.
 
     @return: The decrypted data, as bytes.
     '''
