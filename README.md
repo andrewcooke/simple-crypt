@@ -52,6 +52,11 @@ decrypted message: b'hello world\n'
 decrypted string: hello world
 ```
 
+Also, it's perhapos worth noting that the overhead (the extra length of the
+encrypted data, compared to the message) is constant.  It looks a lot here,
+because the message is very small, but for most practical uses should not be
+an issue.
+
 Algorithms
 ----------
 
