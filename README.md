@@ -4,7 +4,8 @@ simple-crypt
 Simple encryption and decryption for Python.
 
 This provides two functions, which encrypt and decrypt data, delegating all
-the hard work to the pycrypto library (which must also be installed).
+the hard work to the [https://www.dlitz.net/software/pycrypto/ pycrypto]
+library (which must also be installed).
 
 The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
