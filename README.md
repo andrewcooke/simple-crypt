@@ -38,9 +38,9 @@ print("decrypted message: %s" % decrypted)
 print("decrypted string: %s" % decrypted.decode('utf8'))
 ```
 
-Which, when run, produces something like (the actual encrypted message will
-be different each time, as a random counter - effectively a random IV - is
-used for each encryption).
+Which, when run, produces something like the following (the actual encrypted
+message will be different each time, as a random counter - effectively a
+random IV - is used for each encryption):
 
 ```
 password: ******
