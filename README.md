@@ -21,7 +21,7 @@ from simplecrypt import encrypt, decrypt
 password = getpass("password: ")
 
 # read the (single line) message we will encrypt
-print("message: ",)
+print("message: ")
 message = stdin.readline()
 
 # encrypt the message.  we explicitly convert to bytes first (optional)
