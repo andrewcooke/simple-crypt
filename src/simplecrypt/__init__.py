@@ -1,4 +1,6 @@
+
 from functools import reduce
+
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
@@ -21,7 +23,7 @@ def encrypt(salt, password, data):
      much as possible between uses.  For example, if the encryption is
      specific to a particular user then you could use the user's name.  The
      idea is not that this value is secret, but that it adds additional
-     variation to the data.  At the very least, you could use the name of
+     variation to the key.  At the very least, you could use the name of
      your application here.
 
     @param password: A string, the secret value used as the basis for a key.
@@ -36,13 +38,13 @@ def encrypt(salt, password, data):
     offset = getrandbits(COUNTER_SIZE)
     counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
-    ctext = cipher.encrypt(data)
+    encrypted = cipher.encrypt(data)
     prefix = bytes(_offset_to_bytes(offset))
-    hmac = HMAC.new(key, prefix + ctext, HMAC_HASH).digest()
-    return prefix + ctext + hmac
+    hmac = HMAC.new(key, prefix + encrypted, HMAC_HASH).digest()
+    return prefix + encrypted + hmac
 
 
-def decrypt(salt, password, ctext):
+def decrypt(salt, password, data):
     '''
     Decrypt some data.
 
@@ -51,7 +53,7 @@ def decrypt(salt, password, ctext):
      much as possible between uses.  For example, if the encryption is
      specific to a particular user then you could use the user's name.  The
      idea is not that this value is secret, but that it adds additional
-     variation to the data.  At the very least, you could use the name of
+     variation to the key.  At the very least, you could use the name of
      your application here.
 
     @param password: A string, the secret value used as the basis for a key.
@@ -63,14 +65,13 @@ def decrypt(salt, password, ctext):
     @return: The decrypted data, as bytes.
     '''
     key = _expand_key(salt, password)
-    hmac2 = HMAC.new(key, ctext[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
-    hmac = ctext[-HMAC_HASH.digest_size:]
+    hmac = data[-HMAC_HASH.digest_size:]
+    hmac2 = HMAC.new(key, data[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
     if hmac != hmac2: raise Exception("data were modified")
-    offset = _bytes_to_offset(ctext[:COUNTER_SIZE//8])
+    offset = _bytes_to_offset(data[:COUNTER_SIZE//8])
     counter = Counter.new(COUNTER_SIZE, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
-    ctext = ctext[COUNTER_SIZE//8:-HMAC_HASH.digest_size]
-    return cipher.decrypt(ctext)
+    return cipher.decrypt(data[COUNTER_SIZE//8:-HMAC_HASH.digest_size])
 
 
 def _expand_key(salt, password):

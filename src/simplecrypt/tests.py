@@ -1,7 +1,9 @@
 
 from unittest import TestCase
+
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
+
 from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes
 
 
