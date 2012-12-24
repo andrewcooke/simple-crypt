@@ -16,7 +16,7 @@ message = stdin.readline()
 encrypted = encrypt("somerandomsalt", password, message.encode('utf8'))
 
 # the encrypted message is bytes, so we display it as a hex string
-print("encrypted message:", hexlify(encrypted))
+print("encrypted message: %s" % hexlify(encrypted))
 
 # now decrypt the message (using the same salt and password)
 decrypted = decrypt("somerandomsalt", password, encrypted)

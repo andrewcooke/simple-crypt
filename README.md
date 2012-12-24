@@ -28,7 +28,7 @@ message = stdin.readline()
 encrypted = encrypt("somerandomsalt", password, message.encode('utf8'))
 
 # the encrypted message is bytes, so we display it as a hex string
-print("encrypted message:", hexlify(encrypted))
+print("encrypted message: %s" % hexlify(encrypted))
 
 # now decrypt the message (using the same salt and password)
 decrypted = decrypt("somerandomsalt", password, encrypted)
@@ -36,6 +36,16 @@ decrypted = decrypt("somerandomsalt", password, encrypted)
 # the decrypted message is bytes, but we can convert it back to a string
 print("decrypted message: %s" % decrypted)
 print("decrypted string: %s" % decrypted.decode('utf8'))
+```
+
+```
+password: ******
+
+message:
+hello world
+encrypted message: b'489b2b5392bb23d4a4314aeffa9156993dad8bd1dd39e2737ad5a3c02f2c84316bb0428cdd78032afe2621ab7782ca5cba7324ca26e51e03d65146a1'
+decrypted message: b'hello world\n'
+decrypted string: hello world
 ```
 
 Algorithms
