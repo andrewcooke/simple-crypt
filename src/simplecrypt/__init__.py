@@ -65,7 +65,7 @@ def decrypt(salt, password, data):
     key = _expand_key(salt, password)
     hmac = data[-HMAC_HASH.digest_size:]
     hmac2 = HMAC.new(key, data[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
-    if hmac != hmac2: raise DecryptionException("bad password or data were modified")
+    if hmac != hmac2: raise DecryptionException("bad password or corrupt / modified data")
     offset = _bytes_to_offset(data[:AES.block_size])
     counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
