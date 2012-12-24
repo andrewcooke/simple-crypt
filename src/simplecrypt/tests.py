@@ -7,7 +7,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
-from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes
+from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes, DecryptionException
 
 
 class TestEncryption(TestCase):
@@ -41,8 +41,16 @@ class TestEncryption(TestCase):
         try:
             decrypt('salt', 'password', ctext)
             assert False, 'expected error'
-        except Exception as e:
+        except DecryptionException as e:
             assert 'modified' in str(e), e
+
+    def test_bad_password(self):
+        ctext = bytearray(encrypt('salt', 'password', 'message'))
+        try:
+            decrypt('salt', 'badpassword', ctext)
+            assert False, 'expected error'
+        except DecryptionException as e:
+            assert 'bad password' in str(e), e
 
     def test_distinct(self):
         enc1 = encrypt('salt', 'password', 'message')
