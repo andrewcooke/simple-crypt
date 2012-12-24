@@ -1,7 +1,7 @@
 
 from unittest import TestCase
-from Crypto.Cipher import AES
 
+from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
