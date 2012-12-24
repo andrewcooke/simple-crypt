@@ -3,6 +3,7 @@ from unittest import TestCase
 from Crypto.Protocol.KDF import PBKDF2
 from simplecrypt import encrypt, decrypt, _expand_key
 
+
 class TestEncryption(TestCase):
 
     def test_known_result(self):
@@ -13,6 +14,10 @@ class TestEncryption(TestCase):
         ptext = decrypt('salt', 'password', encrypt('salt', 'password', 'message'))
         assert ptext == 'message'.encode('utf8'), ptext
 
+    def test_bytes(self):
+        ptext = decrypt('salt', 'password', encrypt('salt', 'password', b'message'))
+        assert ptext == b'message', ptext
+
     def test_pbkdf(self):
         key = PBKDF2(b'password', b'salt')
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O', key
@@ -21,3 +26,12 @@ class TestEncryption(TestCase):
         key = _expand_key('salt', 'password')
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O\xedH\xd0?\xcb\xad\x96\x8bV\x00g\x84S\x9dR\x14', key
         assert len(key) * 8 == 256, len(key)
+
+    def test_modification(self):
+        ctext = bytearray(encrypt('salt', 'password', 'message'))
+        ctext[10] = ctext[10] ^ 85
+        try:
+            decrypt('salt', 'password', ctext)
+            assert False, 'expected error'
+        except Exception as e:
+            assert 'modified' in str(e), e
