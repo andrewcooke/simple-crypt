@@ -24,3 +24,5 @@ http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
   appended.  This uses the same key as the AES cipher.
 
 * On decryption, the HMAC is validated before decryption.
+
+The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py)
