@@ -36,5 +36,5 @@ nosetests.xml
 
 .idea
 *.iml
-
-
+env
+*~
