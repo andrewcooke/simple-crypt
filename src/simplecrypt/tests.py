@@ -1,3 +1,4 @@
+# coding=utf-8
 
 from unittest import TestCase
 
@@ -20,6 +21,10 @@ class TestEncryption(TestCase):
         assert ptext.decode('utf8') == 'message', ptext
         ptext = decrypt('salt', 'password', encrypt('salt', 'password', 'message'.encode('utf8')))
         assert ptext == 'message'.encode('utf8'), ptext
+        ptext = decrypt('salt', 'password', encrypt('salt', 'password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
+        assert ptext.decode('utf8') == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹', ptext
+        ptext = decrypt('salt', 'password', encrypt('salt', 'password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
+        assert ptext == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8'), ptext
 
     def test_pbkdf(self):
         key = PBKDF2(b'password', b'salt')
