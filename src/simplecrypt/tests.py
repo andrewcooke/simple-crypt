@@ -50,7 +50,21 @@ class TestEncryption(TestCase):
             decrypt('salt', 'badpassword', ctext)
             assert False, 'expected error'
         except DecryptionException as e:
-            assert 'bad password' in str(e), e
+            assert 'Bad password' in str(e), e
+
+    def test_empty_password(self):
+        try:
+            encrypt('salt', '', 'message')
+            assert False, 'expected error'
+        except ValueError as e:
+            assert 'password' in str(e), e
+
+    def test_empty_salt(self):
+        try:
+            encrypt('', 'password', 'message')
+            assert False, 'expected error'
+        except ValueError as e:
+            assert 'salt' in str(e), e
 
     def test_distinct(self):
         enc1 = encrypt('salt', 'password', 'message')

@@ -65,7 +65,7 @@ def decrypt(salt, password, data):
     key = _expand_key(salt, password)
     hmac = data[-HMAC_HASH.digest_size:]
     hmac2 = HMAC.new(key, data[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
-    if hmac != hmac2: raise DecryptionException("bad password or corrupt / modified data")
+    if hmac != hmac2: raise DecryptionException("Bad password or corrupt / modified data")
     offset = _bytes_to_offset(data[:AES.block_size])
     counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
@@ -76,6 +76,8 @@ def decrypt(salt, password, data):
 class DecryptionException(Exception): pass
 
 def _expand_key(salt, password):
+    if not salt: raise ValueError('Missing salt')
+    if not password: raise ValueError('Missing password')
     return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=EXPANSION_COUNT)
 
 def _offset_to_bytes(offset):
