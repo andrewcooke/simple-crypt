@@ -69,8 +69,8 @@ Algorithms
 ----------
 
 The algorithms used follow the recommendations at
-http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
-(plus http://en.wikipedia.org/wiki/PBKDF2), as far as I can tell:
+http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html,
+as far as I can tell:
 
 * The "password" is expanded to a 256 bit key, using PBKDF2 with a 128 bit
   random "salt".
