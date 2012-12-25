@@ -78,15 +78,16 @@ as far as I can tell:
   random salt, SHA256, and 10,000 iterations.
 
 * AES256 CTR mode is used to encrypt the data.  The first 64 bits of the
-  salt are used as a message nonce (of half the block size); the associated
-  incremental part uses the remaining 64 bits (see section B.2 of
-  http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
+  salt are used as a message nonce (of half the block size); the incremental
+  part pof the counter uses the remaining 64 bits (see section B.2
+  of http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
 * Encrypted messages include a 4 byte header ("sc" in ASCII followed by two
   zero bytes).
 
 * An SHA256 HMAC (of header, salt, and encrypted message) is calculated.  This
-  uses the same key as the AES cipher.
+  uses a separate key from the AES cipher, calculated from the same password,
+  but with a shifted salt.
 
 * The final message consists of the header, salt, encrypted data, and HMAC,
   concatenated in that order.

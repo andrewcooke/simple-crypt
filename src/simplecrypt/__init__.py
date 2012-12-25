@@ -32,11 +32,12 @@ def encrypt(password, data):
     '''
     _assert_encrypt_length(data)
     salt = _random_bytes(SALT_LEN//8)
-    key = _expand_key(salt, password)
+    cipher_key = _expand_key(password, salt)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
-    cipher = AES.new(key, AES.MODE_CTR, counter=counter)
+    cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    hmac = HMAC.new(key, HEADER + salt + encrypted, HASH).digest()
+    hmac_key = _expand_key(password, _rotate(salt))
+    hmac = HMAC.new(hmac_key, HEADER + salt + encrypted, HASH).digest()
     return HEADER + salt + encrypted + hmac
 
 
@@ -55,12 +56,13 @@ def decrypt(password, data):
     _assert_prefix(data)
     raw = data[len(HEADER):]
     salt = raw[:SALT_LEN//8]
-    key = _expand_key(salt, password)
+    hmac_key = _expand_key(password, _rotate(salt))
     hmac = raw[-HASH.digest_size:]
-    hmac2 = HMAC.new(key, data[:-HASH.digest_size], HASH).digest()
+    hmac2 = HMAC.new(hmac_key, data[:-HASH.digest_size], HASH).digest()
     _assert_hmac(hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
-    cipher = AES.new(key, AES.MODE_CTR, counter=counter)
+    cipher_key = _expand_key(password, salt)
+    cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     return cipher.decrypt(raw[SALT_LEN//8:-HASH.digest_size])
 
 
@@ -86,7 +88,11 @@ def _assert_hmac(hmac, hmac2):
     if _hash(hmac) != _hash(hmac2):
         raise DecryptionException('Bad password or corrupt / modified data')
 
-def _expand_key(salt, password):
+def _rotate(salt):
+    n = len(salt) // 2
+    return salt[:n] + salt[:n]
+
+def _expand_key(password, salt):
     if not salt: raise ValueError('Missing salt')
     if not password: raise ValueError('Missing password')
     # the form of the prf below is taken from the code for PBKDF2
