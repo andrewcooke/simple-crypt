@@ -1,6 +1,4 @@
 
-from functools import reduce
-
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
@@ -12,7 +10,7 @@ EXPANSION_COUNT = 1000
 AES_KEY_LEN = 256
 SALT_LEN = 128
 HASH = SHA256
-PREFIX = b'sc\x00\x00'
+HEADER = b'sc\x00\x00'
 
 # lengths here are in bits, but pcrypto uses block size in bytes
 HALF_BLOCK = AES.block_size*8//2
@@ -38,8 +36,8 @@ def encrypt(password, data):
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    hmac = HMAC.new(key, PREFIX + salt + encrypted, HASH).digest()
-    return PREFIX + salt + encrypted + hmac
+    hmac = HMAC.new(key, HEADER + salt + encrypted, HASH).digest()
+    return HEADER + salt + encrypted + hmac
 
 
 def decrypt(password, data):
@@ -55,7 +53,7 @@ def decrypt(password, data):
     '''
     _assert_decrypt_length(data)
     _assert_prefix(data)
-    raw = data[len(PREFIX):]
+    raw = data[len(HEADER):]
     salt = raw[:SALT_LEN//8]
     key = _expand_key(salt, password)
     hmac = raw[-HASH.digest_size:]
@@ -71,15 +69,16 @@ class DecryptionException(Exception): pass
 class EncryptionException(Exception): pass
 
 def _assert_encrypt_length(data):
+    # for AES this is never going to fail
     if len(data) > 2**HALF_BLOCK:
         raise EncryptionException('Message too long')
 
 def _assert_decrypt_length(data):
-    if len(data) < len(PREFIX) + SALT_LEN//8 + HASH.digest_size:
+    if len(data) < len(HEADER) + SALT_LEN//8 + HASH.digest_size:
         raise DecryptionException('Missing data')
     
 def _assert_prefix(data):
-    if data[:len(PREFIX)] != PREFIX:
+    if data[:len(HEADER)] != HEADER:
         raise DecryptionException('Bad data format')
 
 def _assert_hmac(hmac, hmac2):

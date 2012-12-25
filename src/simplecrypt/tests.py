@@ -5,10 +5,10 @@ from unittest import TestCase
 
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
-from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
-from simplecrypt import encrypt, decrypt, _expand_key,DecryptionException, _randbytes, PREFIX, HALF_BLOCK, AES_KEY_LEN, SALT_LEN
+from simplecrypt import encrypt, decrypt, _expand_key,DecryptionException, \
+    _randbytes, HEADER, HALF_BLOCK, SALT_LEN
 
 
 class TestEncryption(TestCase):
@@ -76,7 +76,7 @@ class TestEncryption(TestCase):
 
     def test_prefix(self):
         ctext = bytearray(encrypt('password', 'message'))
-        for i in range(len(PREFIX)):
+        for i in range(len(HEADER)):
             ctext2 = bytearray(ctext)
             ctext2[i] = 1
             try:
@@ -85,7 +85,7 @@ class TestEncryption(TestCase):
             except DecryptionException as e:
                 assert 'format' in str(e), e
         ctext2 = bytearray(ctext)
-        ctext2[len(PREFIX)] = 1
+        ctext2[len(HEADER)] = 1
         try:
             decrypt('password', ctext2)
             assert False, 'expected error'
