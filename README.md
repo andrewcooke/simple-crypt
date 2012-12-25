@@ -13,8 +13,8 @@ Examples
 The two calls:
 
 ```python
-encrypted = encrypt('salt', password, 'my secret')
-decrypted = decrypt('salt', password, encrypted)
+encrypted = encrypt(password, 'my secret')
+decrypted = decrypt(password, encrypted)
 ```
 
 A simple program:
@@ -34,13 +34,13 @@ print("message: ")
 message = stdin.readline()
 
 # encrypt the message.  we explicitly convert to bytes first (optional)
-encrypted = encrypt("somerandomsalt", password, message.encode('utf8'))
+encrypted = encrypt(password, message.encode('utf8'))
 
 # the encrypted message is bytes, so we display it as a hex string
 print("encrypted message: %s" % hexlify(encrypted))
 
 # now decrypt the message (using the same salt and password)
-decrypted = decrypt("somerandomsalt", password, encrypted)
+decrypted = decrypt(password, encrypted)
 
 # the decrypted message is bytes, but we can convert it back to a string
 print("decrypted message: %s" % decrypted)
@@ -48,15 +48,14 @@ print("decrypted string: %s" % decrypted.decode('utf8'))
 ```
 
 Which, when run, produces something like the following (the actual encrypted
-message will be different each time, as a random counter - effectively a
-random IV - is used for each encryption):
+message will be different each time, as a random IV is used for each message):
 
 ```
 password: ******
 
 message:
 hello world
-encrypted message: b'489b2b5392bb23d4a4314aeffa9156993dad8bd1dd39e2737ad5a3c02f2c84316bb0428cdd78032afe2621ab7782ca5cba7324ca26e51e03d65146a1'
+encrypted message: b'7363000065c876f96113f1aea09438d66ad01ebc8049fab25d0ad7bd6f85b0f5b2574138e410b9e966ac54c8130483b6e89ebe69f87e1f519afc2f848bfecccf'
 decrypted message: b'hello world\n'
 decrypted string: hello world
 ```
@@ -73,16 +72,14 @@ The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 (plus http://en.wikipedia.org/wiki/PBKDF2), as far as I can tell:
 
-* The "password" is expanded to a 256 bit key, using PBKDF2.  This includes
-  a "salt" which should be the same for both encryption and decryption, but
-  otherwise "as random as possible" (perhaps user or, at worst, application
-  name).
+* The "password" is expanded to a 256 bit key, using PBKDF2 with a 128 bit
+  random "salt".
 
-* AES256 CTR mode is used to encrypt the data.  A wraparound counter is used,
-  with a random initial offset.  The initial offset is prepended to the
-  encrypted message.
+* AES256 CTR mode is used to encrypt the data.  The first 64 bits of the
+  salt are used as a nonce; the associated counter is 64 bits
+  (see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
-* A SHA256 HMAC (of initial offset plus encrypted message) is calculated and
+* A SHA256 HMAC (of salt plus encrypted message) is calculated and
   appended.  This uses the same key as the AES cipher.
 
 * On decryption, the HMAC is validated before decryption.

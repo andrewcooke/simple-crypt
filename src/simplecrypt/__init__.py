@@ -10,20 +10,19 @@ from Crypto.Util import Counter
 
 EXPANSION_COUNT = 1000
 AES_KEY_LEN = 256
-HMAC_HASH = SHA256
+SALT_LEN = 128
+HASH = SHA256
+PREFIX = b'sc\x00\x00'
+
+# lengths here are in bits, but pcrypto uses block size in bytes
+HALF_BLOCK = AES.block_size*8//2
+assert HALF_BLOCK <= SALT_LEN  # we use a subset of the salt as nonce
 
 
-def encrypt(salt, password, data):
+
+def encrypt(password, data):
     '''
     Encrypt some data.
-
-    @param salt: A string, at least 8 characters long, that must be identical
-     to the value passed to `decrypt`, but which should otherwise vary as
-     much as possible between uses.  For example, if the encryption is
-     specific to a particular user then you could use the user's name.  The
-     idea is not that this value is secret, but that it adds additional
-     variation to the key.  At the very least, you could use the name of
-     your application here.
 
     @param password: A string, the secret value used as the basis for a key.
      This should be as long as varied as possible.  Try to avoid common words.
@@ -33,27 +32,19 @@ def encrypt(salt, password, data):
 
     @return: The encrypted data, as bytes.
     '''
+    _assert_encrypt_length(data)
+    salt = _randbytes(SALT_LEN//8)
     key = _expand_key(salt, password)
-    offset = getrandbits(AES.block_size*8)
-    counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
+    counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    prefix = bytes(_offset_to_bytes(offset))
-    hmac = HMAC.new(key, prefix + encrypted, HMAC_HASH).digest()
-    return prefix + encrypted + hmac
+    hmac = HMAC.new(key, salt + encrypted, HASH).digest()
+    return PREFIX + salt + encrypted + hmac
 
 
-def decrypt(salt, password, data):
+def decrypt(password, data):
     '''
     Decrypt some data.
-
-    @param salt: A string, at least 8 characters long, that must be identical
-     to the value passed to `encrypt`, but which should otherwise vary as
-     much as possible between uses.  For example, if the encryption is
-     specific to a particular user then you could use the user's name.  The
-     idea is not that this value is secret, but that it adds additional
-     variation to the key.  At the very least, you could use the name of
-     your application here.
 
     @param password: A string, the secret value used as the basis for a key.
      This should be as long as varied as possible.  Try to avoid common words.
@@ -62,28 +53,45 @@ def decrypt(salt, password, data):
 
     @return: The decrypted data, as bytes.
     '''
+    _assert_decrypt_length(data)
+    _assert_prefix(data)
+    raw = data[len(PREFIX):]
+    salt = raw[:SALT_LEN//8]
     key = _expand_key(salt, password)
-    hmac = data[-HMAC_HASH.digest_size:]
-    hmac2 = HMAC.new(key, data[:-HMAC_HASH.digest_size], HMAC_HASH).digest()
-    if hmac != hmac2: raise DecryptionException("Bad password or corrupt / modified data")
-    offset = _bytes_to_offset(data[:AES.block_size])
-    counter = Counter.new(AES.block_size*8, initial_value=offset, allow_wraparound=True)
+    hmac = raw[-HASH.digest_size:]
+    hmac2 = HMAC.new(key, raw[:-HASH.digest_size], HASH).digest()
+    if _hash(hmac) != _hash(hmac2):
+        raise DecryptionException("Bad password or corrupt / modified data")
+    counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
-    return cipher.decrypt(data[AES.block_size:-HMAC_HASH.digest_size])
+    return cipher.decrypt(raw[SALT_LEN//8:-HASH.digest_size])
 
 
 
 class DecryptionException(Exception): pass
+class EncryptionException(Exception): pass
+
+def _assert_encrypt_length(data):
+    if len(data) > 2**HALF_BLOCK:
+        raise EncryptionException('Message too long')
+
+def _assert_decrypt_length(data):
+    if len(data) < len(PREFIX) + SALT_LEN//8 + HASH.digest_size:
+        raise DecryptionException('Missing data')
+    
+def _assert_prefix(data):
+    if data[:len(PREFIX)] != PREFIX:
+        raise DecryptionException('Bad data format')
 
 def _expand_key(salt, password):
     if not salt: raise ValueError('Missing salt')
     if not password: raise ValueError('Missing password')
-    return PBKDF2(password.encode('utf8'), salt.encode('utf8'), dkLen=AES_KEY_LEN//8, count=EXPANSION_COUNT)
+    # the form of the prf below is taken from the code for PBKDF2
+    return PBKDF2(password.encode('utf8'), salt, dkLen=AES_KEY_LEN//8,
+        count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
 
-def _offset_to_bytes(offset):
-    for _ in range(AES.block_size):
-        yield offset % 256
-        offset //= 256
+def _randbytes(n):
+    return bytes(getrandbits(8) for _ in range(n))
 
-def _bytes_to_offset(bytes):
-    return reduce(lambda x, y: x * 256 + y, reversed(bytearray(bytes)))
+def _hash(data):
+    return HASH.new(data=data).digest()

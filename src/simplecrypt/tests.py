@@ -1,4 +1,5 @@
 # coding=utf-8
+from functools import reduce
 
 from unittest import TestCase
 
@@ -7,23 +8,23 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
-from simplecrypt import encrypt, decrypt, _expand_key, _bytes_to_offset, _offset_to_bytes, DecryptionException
+from simplecrypt import encrypt, decrypt, _expand_key,DecryptionException, _randbytes, PREFIX, HALF_BLOCK, AES_KEY_LEN, SALT_LEN
 
 
 class TestEncryption(TestCase):
 
     def test_bytes(self):
-        ptext = decrypt('salt', 'password', encrypt('salt', 'password', b'message'))
+        ptext = decrypt('password', encrypt('password', b'message'))
         assert ptext == b'message', ptext
 
     def test_unicode(self):
-        ptext = decrypt('salt', 'password', encrypt('salt', 'password', 'message'))
+        ptext = decrypt('password', encrypt('password', 'message'))
         assert ptext.decode('utf8') == 'message', ptext
-        ptext = decrypt('salt', 'password', encrypt('salt', 'password', 'message'.encode('utf8')))
+        ptext = decrypt('password', encrypt('password', 'message'.encode('utf8')))
         assert ptext == 'message'.encode('utf8'), ptext
-        ptext = decrypt('salt', 'password', encrypt('salt', 'password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
+        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
         assert ptext.decode('utf8') == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹', ptext
-        ptext = decrypt('salt', 'password', encrypt('salt', 'password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
+        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
         assert ptext == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8'), ptext
 
     def test_pbkdf(self):
@@ -31,45 +32,65 @@ class TestEncryption(TestCase):
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O', key
 
     def test_expand(self):
-        key = _expand_key('salt', 'password')
-        assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O\xedH\xd0?\xcb\xad\x96\x8bV\x00g\x84S\x9dR\x14', key
+        key = _expand_key(b'salt', 'password')
+        assert key == b'c,(\x12\xe4mF\x04\x10+\xa7a\x8e\x9dm}/\x81(\xf6&kJ\x03&M*\x04`\xb7\xdc\xb3', key
         assert len(key) * 8 == 256, len(key)
 
     def test_modification(self):
-        ctext = bytearray(encrypt('salt', 'password', 'message'))
+        ctext = bytearray(encrypt('password', 'message'))
         ctext[10] = ctext[10] ^ 85
         try:
-            decrypt('salt', 'password', ctext)
+            decrypt('password', ctext)
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'modified' in str(e), e
 
     def test_bad_password(self):
-        ctext = bytearray(encrypt('salt', 'password', 'message'))
+        ctext = bytearray(encrypt('password', 'message'))
         try:
-            decrypt('salt', 'badpassword', ctext)
+            decrypt('badpassword', ctext)
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'Bad password' in str(e), e
 
     def test_empty_password(self):
         try:
-            encrypt('salt', '', 'message')
+            encrypt('', 'message')
             assert False, 'expected error'
         except ValueError as e:
             assert 'password' in str(e), e
 
-    def test_empty_salt(self):
-        try:
-            encrypt('', 'password', 'message')
-            assert False, 'expected error'
-        except ValueError as e:
-            assert 'salt' in str(e), e
-
     def test_distinct(self):
-        enc1 = encrypt('salt', 'password', 'message')
-        enc2 = encrypt('salt', 'password', 'message')
+        enc1 = encrypt('password', 'message')
+        enc2 = encrypt('password', 'message')
         assert enc1 != enc2
+
+    def test_length(self):
+        ctext = encrypt('password', '')
+        assert not decrypt('password', ctext)
+        try:
+            decrypt('password', bytes(bytearray(ctext)[1:]))
+            assert False, 'expected error'
+        except DecryptionException as e:
+            assert 'Missing' in str(e), e
+
+    def test_prefix(self):
+        ctext = bytearray(encrypt('password', 'message'))
+        for i in range(len(PREFIX)):
+            ctext2 = bytearray(ctext)
+            ctext2[i] = 1
+            try:
+                decrypt('password', ctext2)
+                assert False, 'expected error'
+            except DecryptionException as e:
+                assert 'format' in str(e), e
+        ctext2 = bytearray(ctext)
+        ctext2[len(PREFIX)] = 1
+        try:
+            decrypt('password', ctext2)
+            assert False, 'expected error'
+        except DecryptionException as e:
+            assert 'format' not in str(e), e
 
 
 class TestCounter(TestCase):
@@ -94,15 +115,17 @@ class TestCounter(TestCase):
         except Exception as e:
             assert 'wrapped' in str(e), e
 
-    def test_offset(self):
-        self.assert_offset(0)
-        self.assert_offset(1)
-        self.assert_offset(255)
-        self.assert_offset(256)
-        self.assert_offset(2**128-1)
-        for _ in range(100):
-            self.assert_offset(getrandbits(AES.block_size))
+    def test_prefix(self):
+        salt = _randbytes(SALT_LEN//8)
+        ctr = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
+        count = ctr()
+        assert len(count) == AES.block_size, count
 
-    def assert_offset(self, offset):
-        result = _bytes_to_offset(_offset_to_bytes(offset))
-        assert result == offset, (result, offset, bytes(_offset_to_bytes(offset)))
+
+class TestRandBytes(TestCase):
+
+    def test_bits(self):
+        b = _randbytes(100)
+        assert len(b) == 100
+        assert 0 == reduce(lambda x, y: x & y, bytearray(b)), b
+        assert 255 == reduce(lambda x, y: x | y, bytearray(b)), b
