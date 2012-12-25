@@ -79,9 +79,13 @@ as far as I can tell:
   salt are used as a nonce; the associated counter is 64 bits
   (see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
-* A SHA256 HMAC (of salt plus encrypted message) is calculated and
-  appended.  This uses the same key as the AES cipher.
+* A SHA256 HMAC (of salt plus encrypted message) is calculated.  This uses
+  the same key as the AES cipher.
 
-* On decryption, the HMAC is validated before decryption.
+* The final message consists of a prefix ("sc" in ASCII followed by two
+  zero bytes), the salt, the encrypted data, and the HMAC, concatenated in
+  that order.
+
+* On decryption, the prefix is checked and HMAC validated before decryption.
 
 The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py).

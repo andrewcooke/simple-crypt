@@ -60,8 +60,7 @@ def decrypt(password, data):
     key = _expand_key(salt, password)
     hmac = raw[-HASH.digest_size:]
     hmac2 = HMAC.new(key, raw[:-HASH.digest_size], HASH).digest()
-    if _hash(hmac) != _hash(hmac2):
-        raise DecryptionException("Bad password or corrupt / modified data")
+    _assert_hmac(hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     return cipher.decrypt(raw[SALT_LEN//8:-HASH.digest_size])
@@ -82,6 +81,11 @@ def _assert_decrypt_length(data):
 def _assert_prefix(data):
     if data[:len(PREFIX)] != PREFIX:
         raise DecryptionException('Bad data format')
+
+def _assert_hmac(hmac, hmac2):
+    # https://www.isecpartners.com/news-events/news/2011/february/double-hmac-verification.aspx
+    if _hash(hmac) != _hash(hmac2):
+        raise DecryptionException("Bad password or corrupt / modified data")
 
 def _expand_key(salt, password):
     if not salt: raise ValueError('Missing salt')
