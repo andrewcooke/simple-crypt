@@ -82,8 +82,8 @@ as far as I can tell:
   part pof the counter uses the remaining 64 bits (see section B.2
   of http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
-* Encrypted messages include a 4 byte header ("sc" in ASCII followed by two
-  zero bytes).
+* An encrypted messages starts with a 4 byte header ("sc" in ASCII followed
+  by two zero bytes).
 
 * An SHA256 HMAC (of header, salt, and encrypted message) is calculated.  This
   uses a separate key from the AES cipher, calculated from the same password,
