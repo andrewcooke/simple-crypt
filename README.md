@@ -7,8 +7,17 @@ This provides two functions, which encrypt and decrypt data, delegating all
 the hard work to the [pycrypto](https://www.dlitz.net/software/pycrypto)
 library (which must also be installed).
 
-Example
--------
+Examples
+--------
+
+The two calls:
+
+```python
+encrypted = encrypt('salt', password, 'my secret')
+decrypted = decrypt('salt', password, encrypted)
+```
+
+A simple program:
 
 ```python
 from binascii import hexlify
