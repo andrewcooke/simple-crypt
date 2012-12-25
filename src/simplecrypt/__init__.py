@@ -38,7 +38,7 @@ def encrypt(password, data):
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    hmac = HMAC.new(key, salt + encrypted, HASH).digest()
+    hmac = HMAC.new(key, PREFIX + salt + encrypted, HASH).digest()
     return PREFIX + salt + encrypted + hmac
 
 
@@ -59,7 +59,7 @@ def decrypt(password, data):
     salt = raw[:SALT_LEN//8]
     key = _expand_key(salt, password)
     hmac = raw[-HASH.digest_size:]
-    hmac2 = HMAC.new(key, raw[:-HASH.digest_size], HASH).digest()
+    hmac2 = HMAC.new(key, data[:-HASH.digest_size], HASH).digest()
     _assert_hmac(hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)

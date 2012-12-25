@@ -79,8 +79,8 @@ as far as I can tell:
   salt are used as a nonce; the associated counter is 64 bits
   (see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
-* A SHA256 HMAC (of salt plus encrypted message) is calculated.  This uses
-  the same key as the AES cipher.
+* A SHA256 HMAC (of prefix, salt, and encrypted message) is calculated.  This
+  uses the same key as the AES cipher.
 
 * The final message consists of a prefix ("sc" in ASCII followed by two
   zero bytes), the salt, the encrypted data, and the HMAC, concatenated in
