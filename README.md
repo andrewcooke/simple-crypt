@@ -13,6 +13,8 @@ Examples
 The two calls:
 
 ```python
+from simplecrypt import encrypt, decrypt
+
 encrypted = encrypt(password, 'my secret')
 decrypted = decrypt(password, encrypted)
 ```
@@ -72,24 +74,24 @@ The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html,
 as far as I can tell:
 
-* The "password" is expanded to a 256 bit key, using PBKDF2 with a 128 bit
-  random "salt".
+* The password is expanded to a 256 bit key using PBKDF2 with a 128 bit
+  random salt, SHA256, and 10,000 iterations.
 
 * AES256 CTR mode is used to encrypt the data.  The first 64 bits of the
-  salt are used as a nonce (of half the block size); the associated
+  salt are used as a message nonce (of half the block size); the associated
   incremental part uses the remaining 64 bits (see section B.2 of
   http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
 * Encrypted messages include a 4 byte header ("sc" in ASCII followed by two
   zero bytes).
 
-* A SHA256 HMAC (of header, salt, and encrypted message) is calculated.  This
+* An SHA256 HMAC (of header, salt, and encrypted message) is calculated.  This
   uses the same key as the AES cipher.
 
-* The final message consists of the header, the salt, the encrypted data,
-  and the HMAC, concatenated in that order.
+* The final message consists of the header, salt, encrypted data, and HMAC,
+  concatenated in that order.
 
-* On decryption, the header is checked and HMAC validated before decryption.
+* On decryption, the header is checked and the HMAC validated before decryption.
 
 The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py).
 

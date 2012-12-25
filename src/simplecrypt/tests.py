@@ -33,7 +33,7 @@ class TestEncryption(TestCase):
 
     def test_expand(self):
         key = _expand_key(b'salt', 'password')
-        assert key == b'c,(\x12\xe4mF\x04\x10+\xa7a\x8e\x9dm}/\x81(\xf6&kJ\x03&M*\x04`\xb7\xdc\xb3', key
+        assert key == b'^\xc0+\x91\xa4\xb5\x9coY\xdd_\xbeL\xa6I\xec\xe4\xfa\x85h\xcd\xb8\xba6\xcfABn\x88\x05R+', key
         assert len(key) * 8 == 256, len(key)
 
     def test_modification(self):

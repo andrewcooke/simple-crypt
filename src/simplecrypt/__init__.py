@@ -6,7 +6,7 @@ from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
 
 
-EXPANSION_COUNT = 1000
+EXPANSION_COUNT = 10000
 AES_KEY_LEN = 256
 SALT_LEN = 128
 HASH = SHA256
