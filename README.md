@@ -92,3 +92,12 @@ as far as I can tell:
 * On decryption, the header is checked and HMAC validated before decryption.
 
 The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py).
+
+Possible discussion and criticism of the design can be found on
+[HN](http://news.ycombinator.com/item?id=4962983) and
+[codereview.stackexchange](http://codereview.stackexchange.com/questions/19910/simple-crypto-library-in-python-correct-and-secure).
+Grateful thanks to all commentators (particularly marshray); mistakes remain
+mine.
+
+(c) 2012 Andrew Cooke; released into the public domain for any use, but
+with absolutely no warranty.
