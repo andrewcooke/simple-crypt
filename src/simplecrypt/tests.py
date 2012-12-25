@@ -1,6 +1,6 @@
 # coding=utf-8
-from functools import reduce
 
+from functools import reduce
 from unittest import TestCase
 
 from Crypto.Cipher import AES
@@ -8,7 +8,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
 from simplecrypt import encrypt, decrypt, _expand_key,DecryptionException, \
-    _randbytes, HEADER, HALF_BLOCK, SALT_LEN
+    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN
 
 
 class TestEncryption(TestCase):
@@ -76,6 +76,7 @@ class TestEncryption(TestCase):
 
     def test_prefix(self):
         ctext = bytearray(encrypt('password', 'message'))
+        assert ctext[:len(HEADER)] == HEADER
         for i in range(len(HEADER)):
             ctext2 = bytearray(ctext)
             ctext2[i] = 1
@@ -116,7 +117,7 @@ class TestCounter(TestCase):
             assert 'wrapped' in str(e), e
 
     def test_prefix(self):
-        salt = _randbytes(SALT_LEN//8)
+        salt = _random_bytes(SALT_LEN//8)
         ctr = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
         count = ctr()
         assert len(count) == AES.block_size, count
@@ -125,7 +126,13 @@ class TestCounter(TestCase):
 class TestRandBytes(TestCase):
 
     def test_bits(self):
-        b = _randbytes(100)
+        b = _random_bytes(100) # test will fail ~ 1 in 2^100/8 times
         assert len(b) == 100
         assert 0 == reduce(lambda x, y: x & y, bytearray(b)), b
         assert 255 == reduce(lambda x, y: x | y, bytearray(b)), b
+
+    def test_all_values(self):
+        b = _random_bytes(255*10)
+        assert reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
+        b = _random_bytes(255)
+        assert not reduce(lambda a, b: a and b, (n in b for n in range(256)), True)

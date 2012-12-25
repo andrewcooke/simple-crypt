@@ -31,7 +31,7 @@ def encrypt(password, data):
     @return: The encrypted data, as bytes.
     '''
     _assert_encrypt_length(data)
-    salt = _randbytes(SALT_LEN//8)
+    salt = _random_bytes(SALT_LEN//8)
     key = _expand_key(salt, password)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(key, AES.MODE_CTR, counter=counter)
@@ -84,7 +84,7 @@ def _assert_prefix(data):
 def _assert_hmac(hmac, hmac2):
     # https://www.isecpartners.com/news-events/news/2011/february/double-hmac-verification.aspx
     if _hash(hmac) != _hash(hmac2):
-        raise DecryptionException("Bad password or corrupt / modified data")
+        raise DecryptionException('Bad password or corrupt / modified data')
 
 def _expand_key(salt, password):
     if not salt: raise ValueError('Missing salt')
@@ -93,7 +93,7 @@ def _expand_key(salt, password):
     return PBKDF2(password.encode('utf8'), salt, dkLen=AES_KEY_LEN//8,
         count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
 
-def _randbytes(n):
+def _random_bytes(n):
     return bytes(getrandbits(8) for _ in range(n))
 
 def _hash(data):
