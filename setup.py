@@ -7,7 +7,7 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.3',
+    version = '0.1.6',
     description = 'Simple encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -21,8 +21,8 @@ setup(
 What Does Simple Crypt Do?
 --------------------------
 
-Simple Crypt encrypts and decrypts data.  It has two functions: `encrypt`
-and `decrypt`::
+Simple Crypt encrypts and decrypts data.  It has two functions, ``encrypt``
+and ``decrypt``::
 
     from simplecrypt import encrypt, decrypt
     encrypted = encrypt('password', plaintext)
@@ -44,11 +44,24 @@ Why Should You Use Simple Crypt?
   modified.
 
 * It tries to make things as secure as possible when poor quality passwords
-  are used (PKBDF2 with SHA256, a 128 bit salt, and 10,000 rounds).  That
+  are used (PKBDF2 with SHA256, a 128 bit salt, and 10,000 rounds).  But that
   doesn't mean you should use a poor password!
 
 * Using a library, rather than writing your own code, means that we have less
   solutions to the same problem.  That means more chance of finding bugs, which
   means more reliable, more secure code.
+
+What Else Should I Know?
+------------------------
+
+* You must also install ``pycrypto``.
+
+* The outputs from ``encrypt`` and ``decrypt`` are ``bytes``.  If you started
+  with string input then you can convert the output from ``decrypt`` using
+  ``.decode('utf8')``.
+
+::
+
+    mystring = decrypt('password', encrypted).decode('utf8')
     '''
 )
