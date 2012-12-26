@@ -52,7 +52,7 @@ def decrypt(password, data):
     @return: The decrypted data, as bytes.
     '''
     _assert_decrypt_length(data)
-    _assert_prefix(data)
+    _assert_header(data)
     raw = data[len(HEADER):]
     salt = raw[:SALT_LEN//8]
     hmac_key, cipher_key = _expand_keys(password, salt)
@@ -77,7 +77,7 @@ def _assert_decrypt_length(data):
     if len(data) < len(HEADER) + SALT_LEN//8 + HASH.digest_size:
         raise DecryptionException('Missing data')
     
-def _assert_prefix(data):
+def _assert_header(data):
     if data[:len(HEADER)] != HEADER:
         raise DecryptionException('Bad data format')
 
