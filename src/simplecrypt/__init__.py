@@ -20,16 +20,17 @@ assert HALF_BLOCK <= SALT_LEN  # we use a subset of the salt as nonce
 
 def encrypt(password, data):
     '''
-    Encrypt some data.
+    Encrypt some data.  Input can be bytes or a string (which will be encoded
+    using UTF-8).
 
-    @param password: A string, the secret value used as the basis for a key.
+    @param password: The secret value used as the basis for a key.
      This should be as long as varied as possible.  Try to avoid common words.
 
-    @param data: The data to be encrypted, typically as bytes.  You can pass
-     in a simple string, which will be encoded as utf8.
+    @param data: The data to be encrypted.
 
     @return: The encrypted data, as bytes.
     '''
+    data = _str_to_bytes(data)
     _assert_encrypt_length(data)
     salt = _random_bytes(SALT_LEN//8)
     hmac_key, cipher_key = _expand_keys(password, salt)
@@ -42,15 +43,17 @@ def encrypt(password, data):
 
 def decrypt(password, data):
     '''
-    Decrypt some data.
+    Decrypt some data.  Input must be bytes.
 
-    @param password: A string, the secret value used as the basis for a key.
+    @param password: The secret value used as the basis for a key.
      This should be as long as varied as possible.  Try to avoid common words.
 
     @param data: The data to be decrypted, typically as bytes.
 
-    @return: The decrypted data, as bytes.
+    @return: The decrypted data, as bytes.  If the original message was a
+    string you can re-create that using `result.decode('utf8')`.
     '''
+    _assert_not_string(data)
     _assert_decrypt_length(data)
     _assert_header(data)
     raw = data[len(HEADER):]
@@ -68,30 +71,36 @@ def decrypt(password, data):
 class DecryptionException(Exception): pass
 class EncryptionException(Exception): pass
 
+def _assert_not_string(data):
+    # warn confused users
+    if isinstance(data, str):
+        raise DecryptionException('Data to decrypt must be bytes; ' +
+        'you cannot use a string because no string encoding will accept all possible characters.')
+
 def _assert_encrypt_length(data):
     # for AES this is never going to fail
     if len(data) > 2**HALF_BLOCK:
-        raise EncryptionException('Message too long')
+        raise EncryptionException('Message too long.')
 
 def _assert_decrypt_length(data):
     if len(data) < len(HEADER) + SALT_LEN//8 + HASH.digest_size:
-        raise DecryptionException('Missing data')
+        raise DecryptionException('Missing data.')
     
 def _assert_header(data):
     if data[:len(HEADER)] != HEADER:
-        raise DecryptionException('Bad data format')
+        raise DecryptionException('Bad data format.')
 
 def _assert_hmac(hmac, hmac2):
     # https://www.isecpartners.com/news-events/news/2011/february/double-hmac-verification.aspx
     if _hash(hmac) != _hash(hmac2):
-        raise DecryptionException('Bad password or corrupt / modified data')
+        raise DecryptionException('Bad password or corrupt / modified data.')
 
 def _expand_keys(password, salt):
-    if not salt: raise ValueError('Missing salt')
-    if not password: raise ValueError('Missing password')
+    if not salt: raise ValueError('Missing salt.')
+    if not password: raise ValueError('Missing password.')
     key_len = AES_KEY_LEN // 8
     # the form of the prf below is taken from the code for PBKDF2
-    keys = PBKDF2(password.encode('utf8'), salt, dkLen=2*key_len,
+    keys = PBKDF2(_str_to_bytes(password), salt, dkLen=2*key_len,
         count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
     return keys[:key_len], keys[key_len:]
 
@@ -100,3 +109,7 @@ def _random_bytes(n):
 
 def _hash(data):
     return HASH.new(data=data).digest()
+
+def _str_to_bytes(data):
+    try: return data.encode('utf8')
+    except AttributeError: return data

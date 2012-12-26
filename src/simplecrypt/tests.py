@@ -13,11 +13,26 @@ from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
 
 class TestEncryption(TestCase):
 
-    def test_bytes(self):
+    def test_bytes_plaintext(self):
         ptext = decrypt('password', encrypt('password', b'message'))
         assert ptext == b'message', ptext
 
-    def test_unicode(self):
+    def test_unicode_ciphertext(self):
+        try:
+            decrypt('password', 'some string')
+            assert False, 'expected error'
+        except DecryptionException as e:
+            assert 'bytes' in str(e), e
+
+    def test_bytes_password(self):
+        ptext = decrypt(b'password', encrypt(b'password', b'message'))
+        assert ptext == b'message', ptext
+        ptext = decrypt('password', encrypt(b'password', b'message'))
+        assert ptext == b'message', ptext
+        ptext = decrypt(b'password', encrypt('password', b'message'))
+        assert ptext == b'message', ptext
+
+    def test_unicode_plaintext(self):
         ptext = decrypt('password', encrypt('password', 'message'))
         assert ptext.decode('utf8') == 'message', ptext
         ptext = decrypt('password', encrypt('password', 'message'.encode('utf8')))
