@@ -8,7 +8,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
 from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
-    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _rotate
+    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN
 
 
 class TestEncryption(TestCase):
@@ -139,14 +139,3 @@ class TestRandBytes(TestCase):
         assert reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
         b = _random_bytes(255)
         assert not reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
-
-
-class TestRotate(TestCase):
-
-    def test_rotate(self):
-        self.assert_rotate([1,2,3,4], [3,4,1,2])
-        self.assert_rotate([1,2,3,4,5], [3,4,5,1,2])
-
-    def assert_rotate(self, salt, expected):
-        result = _rotate(salt)
-        assert result == expected, result

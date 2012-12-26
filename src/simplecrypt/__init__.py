@@ -86,10 +86,6 @@ def _assert_hmac(hmac, hmac2):
     if _hash(hmac) != _hash(hmac2):
         raise DecryptionException('Bad password or corrupt / modified data')
 
-def _rotate(salt):
-    n = len(salt) // 2
-    return salt[n:] + salt[:n]
-
 def _expand_keys(password, salt):
     if not salt: raise ValueError('Missing salt')
     if not password: raise ValueError('Missing password')
