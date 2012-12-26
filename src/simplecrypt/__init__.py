@@ -32,11 +32,10 @@ def encrypt(password, data):
     '''
     _assert_encrypt_length(data)
     salt = _random_bytes(SALT_LEN//8)
-    cipher_key = _expand_key(password, salt)
+    hmac_key, cipher_key = _expand_keys(password, salt)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    hmac_key = _expand_key(password, _rotate(salt))
     hmac = HMAC.new(hmac_key, HEADER + salt + encrypted, HASH).digest()
     return HEADER + salt + encrypted + hmac
 
@@ -56,12 +55,11 @@ def decrypt(password, data):
     _assert_prefix(data)
     raw = data[len(HEADER):]
     salt = raw[:SALT_LEN//8]
-    hmac_key = _expand_key(password, _rotate(salt))
+    hmac_key, cipher_key = _expand_keys(password, salt)
     hmac = raw[-HASH.digest_size:]
     hmac2 = HMAC.new(hmac_key, data[:-HASH.digest_size], HASH).digest()
     _assert_hmac(hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
-    cipher_key = _expand_key(password, salt)
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     return cipher.decrypt(raw[SALT_LEN//8:-HASH.digest_size])
 
@@ -92,12 +90,14 @@ def _rotate(salt):
     n = len(salt) // 2
     return salt[n:] + salt[:n]
 
-def _expand_key(password, salt):
+def _expand_keys(password, salt):
     if not salt: raise ValueError('Missing salt')
     if not password: raise ValueError('Missing password')
     # the form of the prf below is taken from the code for PBKDF2
-    return PBKDF2(password.encode('utf8'), salt, dkLen=AES_KEY_LEN//8,
+    key_len = AES_KEY_LEN//8
+    keys = PBKDF2(password.encode('utf8'), salt, dkLen=2*key_len,
         count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
+    return keys[:key_len], keys[key_len:]
 
 def _random_bytes(n):
     return bytes(getrandbits(8) for _ in range(n))

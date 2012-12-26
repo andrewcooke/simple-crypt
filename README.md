@@ -74,20 +74,19 @@ The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html,
 as far as I can tell:
 
-* The password is expanded to a 256 bit key using PBKDF2 with a 128 bit
+* The password is expanded to two 256 bit keys using PBKDF2 with a 128 bit
   random salt, SHA256, and 10,000 iterations.
 
-* AES256 CTR mode is used to encrypt the data.  The first 64 bits of the
-  salt are used as a message nonce (of half the block size); the incremental
-  part pof the counter uses the remaining 64 bits (see section B.2
+* AES256 CTR mode is used to encrypt the data with one key.  The first 64 bits
+  of the salt are used as a message nonce (of half the block size); the
+  incremental part of the counter uses the remaining 64 bits (see section B.2
   of http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
 * An encrypted messages starts with a 4 byte header ("sc" in ASCII followed
   by two zero bytes).
 
-* An SHA256 HMAC (of header, salt, and encrypted message) is calculated.  This
-  uses a separate key from the AES cipher, calculated from the same password,
-  but with a shifted salt.
+* An SHA256 HMAC (of header, salt, and encrypted message) is calculated using
+  the other key.
 
 * The final message consists of the header, salt, encrypted data, and HMAC,
   concatenated in that order.

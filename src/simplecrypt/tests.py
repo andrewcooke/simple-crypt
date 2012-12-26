@@ -7,7 +7,7 @@ from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
-from simplecrypt import encrypt, decrypt, _expand_key,DecryptionException, \
+from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
     _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _rotate
 
 
@@ -32,9 +32,12 @@ class TestEncryption(TestCase):
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O', key
 
     def test_expand(self):
-        key = _expand_key('password', b'salt')
-        assert key == b'^\xc0+\x91\xa4\xb5\x9coY\xdd_\xbeL\xa6I\xec\xe4\xfa\x85h\xcd\xb8\xba6\xcfABn\x88\x05R+', key
-        assert len(key) * 8 == 256, len(key)
+        key1, key2 = _expand_keys('password', b'salt')
+        assert key1 != key2
+        assert key1 == b'^\xc0+\x91\xa4\xb5\x9coY\xdd_\xbeL\xa6I\xec\xe4\xfa\x85h\xcd\xb8\xba6\xcfABn\x88\x05R+', key1
+        assert len(key1) * 8 == 256, len(key1)
+        assert key2 == b'\xa4\xe2\xae\xac\x19\xa4\x82\x15\x01\xcf`\x91&\xab\x01\xdf%f\x10\x83\xbff\xf9^R\x17\xfe\xe3\x19\x85\x04\xb1', key2
+        assert len(key2) * 8 == 256, len(key2)
 
     def test_modification(self):
         ctext = bytearray(encrypt('password', 'message'))
