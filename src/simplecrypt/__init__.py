@@ -90,7 +90,7 @@ def _assert_hmac(hmac, hmac2):
 
 def _rotate(salt):
     n = len(salt) // 2
-    return salt[:n] + salt[:n]
+    return salt[n:] + salt[:n]
 
 def _expand_key(password, salt):
     if not salt: raise ValueError('Missing salt')
