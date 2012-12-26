@@ -1,7 +1,8 @@
 simple-crypt
 ============
 
-Simple encryption and decryption for Python 3.
+Simple encryption and decryption for Python 3 (now on
+[pypi](http://pypi.python.org/pypi/simple-crypt)).
 
 This provides two functions, which encrypt and decrypt data, delegating all
 the hard work to the [pycrypto](https://www.dlitz.net/software/pycrypto)
