@@ -93,8 +93,8 @@ def _rotate(salt):
 def _expand_keys(password, salt):
     if not salt: raise ValueError('Missing salt')
     if not password: raise ValueError('Missing password')
+    key_len = AES_KEY_LEN // 8
     # the form of the prf below is taken from the code for PBKDF2
-    key_len = AES_KEY_LEN//8
     keys = PBKDF2(password.encode('utf8'), salt, dkLen=2*key_len,
         count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
     return keys[:key_len], keys[key_len:]
