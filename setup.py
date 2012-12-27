@@ -7,7 +7,7 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.8',
+    version = '0.1.9',
     description = 'Simple encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -26,8 +26,8 @@ Simple Crypt encrypts and decrypts data.  It has two functions, ``encrypt``
 and ``decrypt``::
 
     from simplecrypt import encrypt, decrypt
-    encrypted = encrypt('password', plaintext)
-    plaintext = decrypt('password', encrypted)
+    ciphertext = encrypt('password', plaintext)
+    plaintext = decrypt('password', ciphertext)
 
 That's it.  You can see the implementation on
 `github <https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py>`_.
@@ -41,7 +41,7 @@ Why Should I Use Simple Crypt?
 * It uses routines from the established `pycrypto <https://www.dlitz.net/software/pycrypto>`_
   library (the cipher used is AES256).
 
-* It includes a check (an HMAC with SHA256) to warn when encrypted data are
+* It includes a check (an HMAC with SHA256) to warn when ciphertext data are
   modified.
 
 * It tries to make things as secure as possible when poor quality passwords
@@ -52,7 +52,7 @@ Why Should I Use Simple Crypt?
   solutions to the same problem.  That means more chance of finding bugs, which
   means more reliable, more secure code.
 
-* If simple-crypt does have a bug, the use of a header in the encrypted data
+* If simple-crypt does have a bug, the use of a header in the ciphertext data
   means that you will be able to deploy a fixed version that still handles
   older data.  So you can safely update without breaking existing users.
 
@@ -67,6 +67,6 @@ What Else Should I Know?
 
 ::
 
-    mystring = decrypt('password', encrypted).decode('utf8')
+    mystring = decrypt('password', ciphertext).decode('utf8')
     '''
 )

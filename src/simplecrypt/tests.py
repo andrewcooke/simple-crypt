@@ -8,7 +8,8 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
 from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
-    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN
+    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _assert_header_sc, \
+    _assert_header_version
 
 
 class TestEncryption(TestCase):
@@ -87,7 +88,7 @@ class TestEncryption(TestCase):
         ctext = encrypt('password', '')
         assert not decrypt('password', ctext)
         try:
-            decrypt('password', bytes(bytearray(ctext)[1:]))
+            decrypt('password', bytes(bytearray(ctext)[:-1]))
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'Missing' in str(e), e
@@ -99,7 +100,8 @@ class TestEncryption(TestCase):
             ctext2 = bytearray(ctext)
             ctext2[i] = 1
             try:
-                decrypt('password', ctext2)
+                _assert_header_sc(ctext2)
+                _assert_header_version(ctext2)
                 assert False, 'expected error'
             except DecryptionException as e:
                 assert 'bad header' in str(e), e
