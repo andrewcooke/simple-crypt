@@ -7,7 +7,7 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.6',
+    version = '0.1.7',
     description = 'Simple encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -16,7 +16,8 @@ setup(
                    'License :: Public Domain',
                    'Programming Language :: Python :: 3',
                    'Topic :: Security',
-                   'Topic :: Security :: Cryptography'],
+                   'Topic :: Security :: Cryptography',
+                   'Topic :: Software Development'],
     long_description = '''
 What Does Simple Crypt Do?
 --------------------------
