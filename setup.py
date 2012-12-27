@@ -7,7 +7,7 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.7',
+    version = '0.1.8',
     description = 'Simple encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -32,8 +32,8 @@ and ``decrypt``::
 That's it.  You can see the implementation on
 `github <https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py>`_.
 
-Why Should You Use Simple Crypt?
---------------------------------
+Why Should I Use Simple Crypt?
+------------------------------
 
 * It uses standard, well-known algorithms, closely following the
   recommendations `here <http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html>`_.
@@ -45,12 +45,16 @@ Why Should You Use Simple Crypt?
   modified.
 
 * It tries to make things as secure as possible when poor quality passwords
-  are used (PKBDF2 with SHA256, a 128 bit salt, and 10,000 rounds).  But that
+  are used (PBKDF2 with SHA256, a 128 bit salt, and 10,000 rounds).  But that
   doesn't mean you should use a poor password!
 
 * Using a library, rather than writing your own code, means that we have less
   solutions to the same problem.  That means more chance of finding bugs, which
   means more reliable, more secure code.
+
+* If simple-crypt does have a bug, the use of a header in the encrypted data
+  means that you will be able to deploy a fixed version that still handles
+  older data.  So you can safely update without breaking existing users.
 
 What Else Should I Know?
 ------------------------
