@@ -37,7 +37,7 @@ def encrypt(password, data):
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
-    hmac = HMAC.new(hmac_key, HEADER + salt + encrypted, HASH).digest()
+    hmac = _hmac(hmac_key, HEADER + salt + encrypted)
     return HEADER + salt + encrypted + hmac
 
 
@@ -61,8 +61,8 @@ def decrypt(password, data):
     salt = raw[:SALT_LEN//8]
     hmac_key, cipher_key = _expand_keys(password, salt)
     hmac = raw[-HASH.digest_size:]
-    hmac2 = HMAC.new(hmac_key, data[:-HASH.digest_size], HASH).digest()
-    _assert_hmac(hmac, hmac2)
+    hmac2 = _hmac(hmac_key, data[:-HASH.digest_size])
+    _assert_hmac(hmac_key, hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     return cipher.decrypt(raw[SALT_LEN//8:-HASH.digest_size])
@@ -96,9 +96,9 @@ def _assert_header_version(data):
         raise DecryptionException('The data appear to be encrypted with a more recent version of simple-crypt (bad header). ' +
         'Please update the library and try again.')
 
-def _assert_hmac(hmac, hmac2):
+def _assert_hmac(key ,hmac, hmac2):
     # https://www.isecpartners.com/news-events/news/2011/february/double-hmac-verification.aspx
-    if _hash(hmac) != _hash(hmac2):
+    if _hmac(key, hmac) != _hmac(key, hmac2):
         raise DecryptionException('Bad password or corrupt / modified data.')
 
 def _expand_keys(password, salt):
@@ -113,8 +113,8 @@ def _expand_keys(password, salt):
 def _random_bytes(n):
     return bytes(getrandbits(8) for _ in range(n))
 
-def _hash(data):
-    return HASH.new(data=data).digest()
+def _hmac(key, data):
+    return HMAC.new(key, data, HASH).digest()
 
 def _str_to_bytes(data):
     try: return data.encode('utf8')
