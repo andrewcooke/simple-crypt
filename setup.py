@@ -7,7 +7,7 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.9',
+    version = '0.1.10',
     description = 'Simple encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -53,8 +53,9 @@ Why Should I Use Simple Crypt?
   means more reliable, more secure code.
 
 * If simple-crypt does have a bug, the use of a header in the ciphertext data
-  means that you will be able to deploy a fixed version that still handles
-  older data.  So you can safely update without breaking existing users.
+  will help support an upgrade path (I can't promise full backwards support,
+  because any solution will depend on the attack, but at least the needed
+  information is present).
 
 What Else Should I Know?
 ------------------------
