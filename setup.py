@@ -7,8 +7,8 @@ setup(
     requires = 'pycrypto',
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '0.1.10',
-    description = 'Simple encryption and decryption for Python 3',
+    version = '0.1.11',
+    description = 'Simple, secure encryption and decryption for Python 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
     classifiers = ['Development Status :: 4 - Beta',
@@ -38,8 +38,8 @@ Why Should I Use Simple Crypt?
 * It uses standard, well-known algorithms, closely following the
   recommendations `here <http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html>`_.
 
-* It uses routines from the established `pycrypto <https://www.dlitz.net/software/pycrypto>`_
-  library (the cipher used is AES256).
+* The established, efficient `pycrypto <https://www.dlitz.net/software/pycrypto>`_
+  library provides the algorithm implementations (the cipher used is AES256).
 
 * It includes a check (an HMAC with SHA256) to warn when ciphertext data are
   modified.
@@ -69,5 +69,8 @@ What Else Should I Know?
 ::
 
     mystring = decrypt('password', ciphertext).decode('utf8')
+
+* (c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain
+  for any use, but with absolutely no warranty.
     '''
 )

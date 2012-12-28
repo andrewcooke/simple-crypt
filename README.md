@@ -1,7 +1,7 @@
 simple-crypt
 ============
 
-Simple encryption and decryption for Python 3 (now on
+Simple, secure encryption and decryption for Python 3 (now on
 [pypi](http://pypi.python.org/pypi/simple-crypt)).
 
 This provides two functions, which encrypt and decrypt data, delegating all
@@ -102,5 +102,5 @@ Possible discussion and criticism of the design can be found on
 Grateful thanks to all commentators (particularly marshray); mistakes remain
 mine.
 
-(c) 2012 Andrew Cooke; released into the public domain for any use, but
-with absolutely no warranty.
+(c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain for
+any use, but with absolutely no warranty.
