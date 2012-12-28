@@ -96,7 +96,7 @@ as far as I can tell:
 
 The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py).
 
-Possible discussion and criticism of the design can be found on
+Discussion and criticism of the design can be found on
 [HN](http://news.ycombinator.com/item?id=4962983),
 [codereview.stackexchange](http://codereview.stackexchange.com/questions/19910/simple-crypto-library-in-python-correct-and-secure)
 and [crypto.stackexchange](http://crypto.stackexchange.com/questions/5843/future-proof-versioning-and-validation).
