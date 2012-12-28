@@ -16,8 +16,8 @@ The two calls:
 ```python
 from simplecrypt import encrypt, decrypt
 
-encrypted = encrypt(password, 'my secret')
-decrypted = decrypt(password, encrypted)
+ciphertext = encrypt(password, 'my secret')
+plaintext = decrypt(password, ciphertext)
 ```
 
 A simple program:
@@ -32,22 +32,22 @@ from simplecrypt import encrypt, decrypt
 # read the password from the user (without displaying it)
 password = getpass("password: ")
 
-# read the (single line) message we will encrypt
+# read the (single line) plaintext we will encrypt
 print("message: ")
 message = stdin.readline()
 
-# encrypt the message.  we explicitly convert to bytes first (optional)
-encrypted = encrypt(password, message.encode('utf8'))
+# encrypt the plaintext.  we explicitly convert to bytes first (optional)
+ciphertext = encrypt(password, message.encode('utf8'))
 
-# the encrypted message is bytes, so we display it as a hex string
-print("encrypted message: %s" % hexlify(encrypted))
+# the ciphertext plaintext is bytes, so we display it as a hex string
+print("ciphertext: %s" % hexlify(ciphertext))
 
-# now decrypt the message (using the same salt and password)
-decrypted = decrypt(password, encrypted)
+# now decrypt the plaintext (using the same salt and password)
+plaintext = decrypt(password, ciphertext)
 
-# the decrypted message is bytes, but we can convert it back to a string
-print("decrypted message: %s" % decrypted)
-print("decrypted string: %s" % decrypted.decode('utf8'))
+# the decrypted plaintext is bytes, but we can convert it back to a string
+print("plaintext: %s" % plaintext)
+print("plaintext as string: %s" % plaintext.decode('utf8'))
 ```
 
 Which, when run, produces something like the following (the actual encrypted
@@ -58,9 +58,9 @@ password: ******
 
 message:
 hello world
-encrypted message: b'7363000065c876f96113f1aea09438d66ad01ebc8049fab25d0ad7bd6f85b0f5b2574138e410b9e966ac54c8130483b6e89ebe69f87e1f519afc2f848bfecccf'
-decrypted message: b'hello world\n'
-decrypted string: hello world
+ciphertext: b'736300005d14f6bb1c9692c2e09322b6bf11c5c7dea73f3b9047b1d26a50c05925e2237096d313a34a5e93becd587781738b1213129537b3f1b2724dd224acdc'
+plaintext: b'hello world\n'
+plaintext as string: hello world
 ```
 
 Also, it's perhaps worth noting that the overhead (the extra length of the
