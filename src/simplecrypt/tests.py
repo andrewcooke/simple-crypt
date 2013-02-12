@@ -48,7 +48,7 @@ class TestEncryption(TestCase):
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O', key
 
     def test_expand(self):
-        key1, key2 = _expand_keys('password', b'salt', EXPANSION_COUNT)
+        key1, key2 = _expand_keys('password', b'salt')
         assert key1 != key2
         assert key1 == b'^\xc0+\x91\xa4\xb5\x9coY\xdd_\xbeL\xa6I\xec\xe4\xfa\x85h\xcd\xb8\xba6\xcfABn\x88\x05R+', key1
         assert len(key1) * 8 == 256, len(key1)

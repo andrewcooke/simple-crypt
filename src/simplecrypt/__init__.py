@@ -18,7 +18,7 @@ assert HALF_BLOCK <= SALT_LEN  # we use a subset of the salt as nonce
 
 
 
-def encrypt(password, data, expansion_count=EXPANSION_COUNT):
+def encrypt(password, data):
     '''
     Encrypt some data.  Input can be bytes or a string (which will be encoded
     using UTF-8).
@@ -28,16 +28,12 @@ def encrypt(password, data, expansion_count=EXPANSION_COUNT):
 
     @param data: The data to be encrypted.
 
-    @param expansion_count: The number of rounds to use in the key expansion.
-    You can increase this for more security, but you must also adjust the
-    value in `decode`.
-
     @return: The encrypted data, as bytes.
     '''
     data = _str_to_bytes(data)
     _assert_encrypt_length(data)
     salt = _random_bytes(SALT_LEN//8)
-    hmac_key, cipher_key = _expand_keys(password, salt, expansion_count)
+    hmac_key, cipher_key = _expand_keys(password, salt)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
@@ -54,10 +50,6 @@ def decrypt(password, data, expansion_count=EXPANSION_COUNT):
 
     @param data: The data to be decrypted, typically as bytes.
 
-    @param expansion_count: The number of rounds to use in the key expansion.
-    You can increase this for more security, but you must also adjust the
-    value in `encode`.
-
     @return: The decrypted data, as bytes.  If the original message was a
     string you can re-create that using `result.decode('utf8')`.
     '''
@@ -67,7 +59,7 @@ def decrypt(password, data, expansion_count=EXPANSION_COUNT):
     _assert_decrypt_length(data)
     raw = data[len(HEADER):]
     salt = raw[:SALT_LEN//8]
-    hmac_key, cipher_key = _expand_keys(password, salt, expansion_count)
+    hmac_key, cipher_key = _expand_keys(password, salt)
     hmac = raw[-HASH.digest_size:]
     hmac2 = _hmac(hmac_key, data[:-HASH.digest_size])
     _assert_hmac(hmac_key, hmac, hmac2)
@@ -109,13 +101,13 @@ def _assert_hmac(key, hmac, hmac2):
     if _hmac(key, hmac) != _hmac(key, hmac2):
         raise DecryptionException('Bad password or corrupt / modified data.')
 
-def _expand_keys(password, salt, expansion_count):
+def _expand_keys(password, salt):
     if not salt: raise ValueError('Missing salt.')
     if not password: raise ValueError('Missing password.')
     key_len = AES_KEY_LEN // 8
     # the form of the prf below is taken from the code for PBKDF2
     keys = PBKDF2(_str_to_bytes(password), salt, dkLen=2*key_len,
-        count=expansion_count, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
+        count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
     return keys[:key_len], keys[key_len:]
 
 def _random_bytes(n):
