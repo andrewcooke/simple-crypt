@@ -92,7 +92,8 @@ as far as I can tell:
 * The final message consists of the header, salt, encrypted data, and HMAC,
   concatenated in that order.
 
-* On decryption, the header is checked and the HMAC validated before decryption.
+* On decryption, the header is checked and the HMAC validated before
+  decryption.
 
 The [entire implementation is here](https://github.com/andrewcooke/simple-crypt/blob/master/src/simplecrypt/__init__.py).
 
@@ -102,6 +103,20 @@ Discussion and criticism of the design can be found on
 and [crypto.stackexchange](http://crypto.stackexchange.com/questions/5843/future-proof-versioning-and-validation).
 Grateful thanks to all commentators (particularly marshray); mistakes remain
 mine.
+
+Warnings
+--------
+
+# The whole idea of encrypting with a password is not so smart these days.  If
+  you think you need to do this, try reading about Google's
+  [keyczar](http://www.keyczar.org/) which instead uses a keystore
+  (unfortunately, at the time of writing, keyczar does not support Python 3).
+
+# When you call these routines the password is stored in memory as a Python
+  string.  This means that malicious code running on the same machine might be
+  able to read the password (or even that the password could be written to
+  swap space on disk).  One way to reduce the risk is to have the crypto part
+  of your code run as a separate process that exists for a limited time.
 
 (c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain for
 any use, but with absolutely no warranty.
