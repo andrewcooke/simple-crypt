@@ -107,16 +107,16 @@ mine.
 Warnings
 --------
 
-# The whole idea of encrypting with a password is not so smart these days.  If
-  you think you need to do this, try reading about Google's
-  [keyczar](http://www.keyczar.org/) which instead uses a keystore
-  (unfortunately, at the time of writing, keyczar does not support Python 3).
+1. The whole idea of encrypting with a password is not so smart these days.
+   If you think you need to do this, try reading about Google's
+   [keyczar](http://www.keyczar.org/) which instead uses a keystore
+   (unfortunately, at the time of writing, keyczar does not support Python 3).
 
-# When you call these routines the password is stored in memory as a Python
-  string.  This means that malicious code running on the same machine might be
-  able to read the password (or even that the password could be written to
-  swap space on disk).  One way to reduce the risk is to have the crypto part
-  of your code run as a separate process that exists for a limited time.
+2. When you call these routines the password is stored in memory as a Python
+   string.  This means that malicious code running on the same machine might
+   be able to read the password (or even that the password could be written to
+   swap space on disk).  One way to reduce the risk is to have the crypto part
+   of your code run as a separate process that exists for a limited time.
 
 (c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain for
 any use, but with absolutely no warranty.
