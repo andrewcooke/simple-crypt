@@ -110,7 +110,8 @@ Warnings
 1. The whole idea of encrypting with a password is not so smart these days.
    If you think you need to do this, try reading about Google's
    [keyczar](http://www.keyczar.org/) which instead uses a keystore
-   (unfortunately, at the time of writing, keyczar does not support Python 3).
+   (unfortunately, at the time of writing, keyczar does not support Python 3,
+   as far as I can tell, but that should change soon).
 
 2. When you call these routines the password is stored in memory as a Python
    string.  This means that malicious code running on the same machine might
