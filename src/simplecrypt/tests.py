@@ -1,7 +1,7 @@
-# coding=utf-8
+# -*- coding: utf8 -*-
 
 from functools import reduce
-from unittest import TestCase
+from unittest import TestCase, main
 
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
@@ -20,7 +20,7 @@ class TestEncryption(TestCase):
 
     def test_unicode_ciphertext(self):
         try:
-            decrypt('password', 'some string')
+            decrypt(u'password', u'some string')
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'bytes' in str(e), e
@@ -34,14 +34,14 @@ class TestEncryption(TestCase):
         assert ptext == b'message', ptext
 
     def test_unicode_plaintext(self):
-        ptext = decrypt('password', encrypt('password', 'message'))
+        ptext = decrypt(u'password', encrypt(u'password', u'message'))
         assert ptext.decode('utf8') == 'message', ptext
-        ptext = decrypt('password', encrypt('password', 'message'.encode('utf8')))
+        ptext = decrypt(u'password', encrypt(u'password', u'message'.encode('utf8')))
         assert ptext == 'message'.encode('utf8'), ptext
-        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
-        assert ptext.decode('utf8') == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹', ptext
-        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
-        assert ptext == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8'), ptext
+        ptext = decrypt(u'password', encrypt(u'password', u'¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
+        assert ptext.decode('utf8') == u'¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹', ptext
+        ptext = decrypt(u'password', encrypt(u'password', u'¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
+        assert ptext == u'¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8'), ptext
 
     def test_pbkdf(self):
         key = PBKDF2(b'password', b'salt')
@@ -158,3 +158,6 @@ class TestRandBytes(TestCase):
         assert reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
         b = _random_bytes(255)
         assert not reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
+
+if __name__ == '__main__':
+    main()
