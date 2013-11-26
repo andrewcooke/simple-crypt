@@ -1,7 +1,7 @@
 simple-crypt
 ============
 
-Simple, secure encryption and decryption for Python 3 (now on
+Simple, secure encryption and decryption for Python 2 and 3 (now on
 [pypi](http://pypi.python.org/pypi/simple-crypt)).
 
 This provides two functions, which encrypt and decrypt data, delegating all
