@@ -75,7 +75,8 @@ class EncryptionException(Exception): pass
 
 def _assert_not_unicode(data):
     # warn confused users
-    if isinstance(data, type(u'')):
+    u_type = type(b''.decode('utf8'))
+    if isinstance(data, u_type):
         raise DecryptionException('Data to decrypt must be bytes; ' +
         'you cannot use a string because no string encoding will accept all possible characters.')
 
@@ -118,6 +119,7 @@ def _hmac(key, data):
     return HMAC.new(key, data, HASH).digest()
 
 def _str_to_bytes(data):
-    if isinstance(data, type(u'')):
+    u_type = type(b''.decode('utf8'))
+    if isinstance(data, u_type):
         return data.encode('utf8')
     return data
