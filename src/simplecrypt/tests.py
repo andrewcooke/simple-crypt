@@ -11,8 +11,6 @@ from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
     _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _assert_header_sc, \
     _assert_header_version, EXPANSION_COUNT
 
-import sys
-IS_PY2 = sys.version_info[0] == 2
 
 class TestEncryption(TestCase):
 
