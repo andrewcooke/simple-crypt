@@ -3,12 +3,13 @@ from distutils.core import setup
 
 setup(
     name = 'simple-crypt',
+    keywords = ['aes', 'encrypt', 'decrypt', 'encryption', 'decryption', 'pbkdf2', 'hmac', 'secure', 'crypto', 'cryptography'],
     url = 'https://github.com/andrewcooke/simple-crypt',
     requires = 'pycrypto',
     install_requires = ['pycrypto'],
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '2.0.0',
+    version = '2.0.1',
     description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
