@@ -73,7 +73,7 @@ What Else Should I Know?
     mystring = decrypt('password', ciphertext).decode('utf8')
 
 * (c) 2012 Andrew Cooke, andrew@acooke.org;
-  2013 [d10n](https://github.com/d10n), david@bitinvert.com.
+  2013 `d10n <https://github.com/d10n>`_, david@bitinvert.com.
   Released into the public domain for any use, but with absolutely no warranty.
     '''
 )
