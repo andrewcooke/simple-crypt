@@ -36,6 +36,7 @@ nosetests.xml
 
 .idea
 *.iml
-env
+env*
 *~
 MANIFEST
+.bashrc
