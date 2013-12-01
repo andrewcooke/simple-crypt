@@ -9,7 +9,7 @@ setup(
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
     version = '2.0.0',
-    description = 'Simple, secure encryption and decryption for Python 3',
+    description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
     classifiers = ['Development Status :: 5 - Production/Stable',
@@ -64,15 +64,16 @@ What Else Should I Know?
 
 * You must also install ``pycrypto``.
 
-* The outputs from ``encrypt`` and ``decrypt`` are ``bytes``.  If you started
-  with string input then you can convert the output from ``decrypt`` using
-  ``.decode('utf8')``.
+* In Python 3 the outputs from ``encrypt`` and ``decrypt`` are ``bytes``.
+  If you started with string input then you can convert the output from
+  ``decrypt`` using ``.decode('utf8')``.
 
 ::
 
     mystring = decrypt('password', ciphertext).decode('utf8')
 
-* (c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain
-  for any use, but with absolutely no warranty.
+* (c) 2012 Andrew Cooke, andrew@acooke.org;
+  2013 [d10n](https://github.com/d10n), david@bitinvert.com.
+  Released into the public domain for any use, but with absolutely no warranty.
     '''
 )

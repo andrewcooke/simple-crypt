@@ -171,7 +171,7 @@ class TestRandBytes(TestCase):
 class TestBackwardsCompatibility(TestCase):
 
     def test_known(self):
-        # this was generated with python 3.3
+        # this was generated with python 3.3 and v1.0.0
         ctext = b'sc\x00\x00;\xdf|*^\xdbK\xca\xfe?%\x95\xc0\x1a\xe3\r`\x84F\xec\xc9\x86\x00\x90\x7f\xe7\xd1\xbc\xa5\xb2\x9c\x02\xc0\xb9\xb4\x89\xc5\x95\xa9\xc0\n\xac\x01\xe7\xfb\x07i"B\xb5\xedJ\xe7\xed\x95'
         ptext = decrypt('password', ctext)
         assert ptext == b'message', ptext
