@@ -4,8 +4,8 @@ from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
-# see: http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 
+# see: http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 
 EXPANSION_COUNT = 10000
 AES_KEY_LEN = 256
