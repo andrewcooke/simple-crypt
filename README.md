@@ -1,7 +1,7 @@
 simple-crypt
 ============
 
-Simple, secure encryption and decryption for Python 2 and 3 (now on
+Simple, secure encryption and decryption for Python 2.7 and 3 (now on
 [pypi](http://pypi.python.org/pypi/simple-crypt)).
 
 This provides two functions, which encrypt and decrypt data, delegating all
@@ -20,7 +20,7 @@ ciphertext = encrypt(password, 'my secret')
 plaintext = decrypt(password, ciphertext)
 ```
 
-A simple program:
+A simple Python 3 program:
 
 ```python
 from binascii import hexlify
@@ -106,6 +106,17 @@ and
 Grateful thanks to all commentators (particularly marshray); mistakes remain
 mine.
 
+Latest News
+-----------
+
+Release 2.0 should be fully compatible with 1.0 on Python 3 (same API and
+identical results).  However, thanks to [d10n](https://github.com/d10n) it now
+also supports Python 2.7 (tested with Python 2.7.5, 3.0.1 and 3.3.2).
+
+I (Andrew Cooke) am not sure Python 2.7 support is such a good idea.  You should
+really use something like [keyczar](http://www.keyczar.org/).  But there seems
+to be a demand for this, so better the devil you know...
+
 Warnings
 --------
 
@@ -121,5 +132,6 @@ Warnings
    swap space on disk).  One way to reduce the risk is to have the crypto part
    of your code run as a separate process that exists for a limited time.
 
-(c) 2012 Andrew Cooke, andrew@acooke.org; released into the public domain for
-any use, but with absolutely no warranty.
+(c) 2012 Andrew Cooke, andrew@acooke.org;
+2013 [d10n](https://github.com/d10n), david@bitinvert.com.
+Released into the public domain for any use, but with absolutely no warranty.
