@@ -1,7 +1,7 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 from functools import reduce
-from unittest import TestCase
+from unittest import TestCase, main
 
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
@@ -19,8 +19,9 @@ class TestEncryption(TestCase):
         assert ptext == b'message', ptext
 
     def test_unicode_ciphertext(self):
+        u_ciphertext = b'some string'.decode('utf8')
         try:
-            decrypt('password', 'some string')
+            decrypt('password', u_ciphertext)
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'bytes' in str(e), e
@@ -34,14 +35,24 @@ class TestEncryption(TestCase):
         assert ptext == b'message', ptext
 
     def test_unicode_plaintext(self):
-        ptext = decrypt('password', encrypt('password', 'message'))
+        def u(string):
+            u_type = type(b''.decode('utf8'))
+            if not isinstance(string, u_type):
+                return string.decode('utf8')
+            return string
+        u_message = u('message')
+        u_high_order = u('¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹')
+        #else:
+        #    u_message = 'message'
+        #    u_highorder = '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'
+        ptext = decrypt('password', encrypt('password', u_message))
         assert ptext.decode('utf8') == 'message', ptext
-        ptext = decrypt('password', encrypt('password', 'message'.encode('utf8')))
+        ptext = decrypt('password', encrypt('password', u_message.encode('utf8')))
         assert ptext == 'message'.encode('utf8'), ptext
-        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'))
-        assert ptext.decode('utf8') == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹', ptext
-        ptext = decrypt('password', encrypt('password', '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8')))
-        assert ptext == '¥£€$¢₡₢₣₤₥₦₧₨₩₪₫₭₮₯₹'.encode('utf8'), ptext
+        ptext = decrypt('password', encrypt('password', u_high_order))
+        assert ptext.decode('utf8') == u_high_order, ptext
+        ptext = decrypt('password', encrypt('password', u_high_order.encode('utf8')))
+        assert ptext == u_high_order.encode('utf8'), ptext
 
     def test_pbkdf(self):
         key = PBKDF2(b'password', b'salt')
@@ -167,3 +178,7 @@ class TestBackwardsCompatibility(TestCase):
         ctext = b'sc\x00\x00;\xdf|*^\xdbK\xca\xfe?%\x95\xc0\x1a\xe3\r`\x84F\xec\xc9\x86\x00\x90\x7f\xe7\xd1\xbc\xa5\xb2\x9c\x02\xc0\xb9\xb4\x89\xc5\x95\xa9\xc0\n\xac\x01\xe7\xfb\x07i"B\xb5\xedJ\xe7\xed\x95'
         ptext = decrypt('password', ctext)
         assert ptext == b'message', ptext
+
+
+if __name__ == '__main__':
+    main()

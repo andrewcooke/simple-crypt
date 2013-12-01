@@ -4,6 +4,7 @@ from Crypto.Hash import SHA256, HMAC
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random.random import getrandbits
 from Crypto.Util import Counter
+# see: http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 
 
 EXPANSION_COUNT = 10000
@@ -32,7 +33,7 @@ def encrypt(password, data):
     '''
     data = _str_to_bytes(data)
     _assert_encrypt_length(data)
-    salt = _random_bytes(SALT_LEN//8)
+    salt = bytes(_random_bytes(SALT_LEN//8))
     hmac_key, cipher_key = _expand_keys(password, salt)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
@@ -53,7 +54,7 @@ def decrypt(password, data, expansion_count=EXPANSION_COUNT):
     @return: The decrypted data, as bytes.  If the original message was a
     string you can re-create that using `result.decode('utf8')`.
     '''
-    _assert_not_string(data)
+    _assert_not_unicode(data)
     _assert_header_sc(data)
     _assert_header_version(data)
     _assert_decrypt_length(data)
@@ -72,9 +73,10 @@ def decrypt(password, data, expansion_count=EXPANSION_COUNT):
 class DecryptionException(Exception): pass
 class EncryptionException(Exception): pass
 
-def _assert_not_string(data):
+def _assert_not_unicode(data):
     # warn confused users
-    if isinstance(data, str):
+    u_type = type(b''.decode('utf8'))
+    if isinstance(data, u_type):
         raise DecryptionException('Data to decrypt must be bytes; ' +
         'you cannot use a string because no string encoding will accept all possible characters.')
 
@@ -111,11 +113,13 @@ def _expand_keys(password, salt):
     return keys[:key_len], keys[key_len:]
 
 def _random_bytes(n):
-    return bytes(getrandbits(8) for _ in range(n))
+    return bytearray(getrandbits(8) for _ in range(n))
 
 def _hmac(key, data):
     return HMAC.new(key, data, HASH).digest()
 
 def _str_to_bytes(data):
-    try: return data.encode('utf8')
-    except AttributeError: return data
+    u_type = type(b''.decode('utf8'))
+    if isinstance(data, u_type):
+        return data.encode('utf8')
+    return data
