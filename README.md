@@ -58,7 +58,7 @@ password: ******
 
 message:
 hello world
-ciphertext: b'736300005d14f6bb1c9692c2e09322b6bf11c5c7dea73f3b9047b1d26a50c05925e2237096d313a34a5e93becd587781738b1213129537b3f1b2724dd224acdc'
+ciphertext: b'73630001b1c39575390d5720f2a80e7a06fbddbf2c844d6b8eaf845d4a9e140d46a54c6729e74b0ddeb1cb82dee81691123faf8f41900c5a6c5b755ed8ae195ff2410290bcb8dc2ee3a2126c594b711d'
 plaintext: b'hello world\n'
 plaintext as string: hello world
 ```
@@ -75,8 +75,9 @@ The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html,
 as far as I can tell:
 
-* The password is expanded to two 256 bit keys using PBKDF2 with a 128 bit
-  random salt, SHA256, and 10,000 iterations.
+* The password is expanded to two 256 bit keys using PBKDF2 with a 256 bit
+  random salt (increased from 128 bits in release 3.0.0), SHA256, and
+  10,000 iterations.
 
 * AES256 CTR mode is used to encrypt the data with one key.  The first 64 bits
   of the salt are used as a message nonce (of half the block size); the
@@ -84,7 +85,7 @@ as far as I can tell:
   of http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
 * An encrypted messages starts with a 4 byte header ("sc" in ASCII followed
-  by two zero bytes).
+  by either two zero bytes (pre-3.0), or a zero and a one).
 
 * An SHA256 HMAC (of header, salt, and encrypted message) is calculated using
   the other key.
@@ -108,6 +109,22 @@ mine.
 
 Latest News
 -----------
+
+Release 3.0 increases the size of the salt used from 128 to 256 bytes.  The
+header has also changed, so data encrypted by previous releases can be detected
+and decrypted correctly.
+
+Note that data encrypted by release 3.0 onwards cannot be decrypted by earlier
+releases (instead, an error with a helpful message is generated).
+
+Previous releases were not consistent with the
+[http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html](advice
+on random IDs here).  The salt is used both to set the CTR mode offset *and*
+to change the key (a random offset alone is not good practice), so must never
+repeat.  Changing from 128 to 256 bits moves the likelihood from "very unlikely"
+to "not in the age of the universe".
+
+My apologies for not getting this correct in earlier releases.
 
 Release 2.0 should be fully compatible with 1.0 on Python 3 (same API and
 identical results).  However, thanks to [d10n](https://github.com/d10n) it now

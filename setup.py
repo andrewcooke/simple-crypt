@@ -9,7 +9,7 @@ setup(
     install_requires = ['pycrypto'],
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '2.0.1',
+    version = '3.0.0',
     description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -48,8 +48,9 @@ Why Should I Use Simple Crypt?
   modified.
 
 * It tries to make things as secure as possible when poor quality passwords
-  are used (PBKDF2 with SHA256, a 128 bit salt, and 10,000 rounds).  But that
-  doesn't mean you should use a poor password!
+  are used (PBKDF2 with SHA256, a 256 bit random salt (increased from 128 bits
+  in release 3.0.0), and 10,000 rounds).  But that doesn't mean you should use
+  a poor password!
 
 * Using a library, rather than writing your own code, means that we have less
   solutions to the same problem.  That means more chance of finding bugs, which
@@ -73,7 +74,12 @@ What Else Should I Know?
 
     mystring = decrypt('password', ciphertext).decode('utf8')
 
-* (c) 2012 Andrew Cooke, andrew@acooke.org;
+
+* Release 3.0.0 *can* decrypt data from previous versions, but data encrypted
+  by 3.0.0 onwards *cannot* be decrypted by earlier code (instead, an
+  error is raised asking the user to update to the latest version).
+
+* (c) 2012-2014 Andrew Cooke, andrew@acooke.org;
   2013 `d10n <https://github.com/d10n>`_, david@bitinvert.com.
   Released into the public domain for any use, but with absolutely no warranty.
     '''

@@ -8,8 +8,8 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
 
 from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
-    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _assert_header_sc, \
-    _assert_header_version, EXPANSION_COUNT
+    _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _assert_header_prefix, \
+    _assert_header_version, LATEST, HEADER_LEN
 
 
 class TestEncryption(TestCase):
@@ -103,12 +103,12 @@ class TestEncryption(TestCase):
 
     def test_header(self):
         ctext = bytearray(encrypt('password', 'message'))
-        assert ctext[:len(HEADER)] == HEADER
+        assert ctext[:HEADER_LEN] == HEADER[LATEST]
         for i in range(len(HEADER)):
             ctext2 = bytearray(ctext)
             ctext2[i] = 1
             try:
-                _assert_header_sc(ctext2)
+                _assert_header_prefix(ctext2)
                 _assert_header_version(ctext2)
                 assert False, 'expected error'
             except DecryptionException as e:
@@ -147,7 +147,7 @@ class TestCounter(TestCase):
             assert 'wrapped' in str(e), e
 
     def test_prefix(self):
-        salt = _random_bytes(SALT_LEN//8)
+        salt = _random_bytes(SALT_LEN[LATEST]//8)
         ctr = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
         count = ctr()
         assert len(count) == AES.block_size, count
@@ -170,9 +170,15 @@ class TestRandBytes(TestCase):
 
 class TestBackwardsCompatibility(TestCase):
 
-    def test_known(self):
+    def test_known_0(self):
         # this was generated with python 3.3 and v1.0.0
         ctext = b'sc\x00\x00;\xdf|*^\xdbK\xca\xfe?%\x95\xc0\x1a\xe3\r`\x84F\xec\xc9\x86\x00\x90\x7f\xe7\xd1\xbc\xa5\xb2\x9c\x02\xc0\xb9\xb4\x89\xc5\x95\xa9\xc0\n\xac\x01\xe7\xfb\x07i"B\xb5\xedJ\xe7\xed\x95'
+        ptext = decrypt('password', ctext)
+        assert ptext == b'message', ptext
+
+    def test_known_1(self):
+        # this was generated with python 3.3 and v3.0.0
+        ctext = b'sc\x00\x01jX\xdc\xbdY\ra\xbf\x8e\x17\xec\xfd\xebQ\xa0\xe3\xce\x9b\xe4\xa7\xbd\x9d\x9dJ\x16\x98\x11_IU\x82L\x96\xe7\x96Q\x01\x94\xe6\xe4\xeb8\xc9\xf2\xdd<t(\xe0\xf4\x96jy\xc9\xf5\xc5\xb6\xa0\xc3@R\xd7\x7f\xed\xc0=\x18\xfcX\xf0\xf4'
         ptext = decrypt('password', ctext)
         assert ptext == b'message', ptext
 
