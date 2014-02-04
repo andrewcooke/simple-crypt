@@ -118,8 +118,9 @@ Note that data encrypted by release 3.0 onwards cannot be decrypted by earlier
 releases (instead, an error with a helpful message is generated).
 
 Previous releases were not consistent with the
-[http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html](advice
-on random IDs here).  The salt is used both to set the CTR mode offset *and*
+[advice on random IDs
+here](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html).
+The salt is used both to set the CTR mode offset *and*
 to change the key (a random offset alone is not good practice), so must never
 repeat.  Changing from 128 to 256 bits moves the likelihood from "very unlikely"
 to "not in the age of the universe".
