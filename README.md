@@ -51,7 +51,8 @@ print("plaintext as string: %s" % plaintext.decode('utf8'))
 ```
 
 Which, when run, produces something like the following (the actual encrypted
-message will be different each time, as a random IV is used for each message):
+message will be different each time, as a random salt is used for each
+message):
 
 ```
 password: ******
