@@ -112,7 +112,7 @@ Latest News
 -----------
 
 Release 3.0 [increases the size of the salt used from 128 to 256
-bytes](http://acooke.org/cute/ChangingSa0.html).  The header has also changed,
+bits](http://acooke.org/cute/ChangingSa0.html).  The header has also changed,
 so data encrypted by previous releases can be detected and decrypted
 correctly.
 
