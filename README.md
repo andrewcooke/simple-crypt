@@ -111,10 +111,10 @@ mine.
 Please note that the general design, based on the [cryptographic right
 answers](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html),
 is intended to give 128 bits of security - any attack would require around
-2^128 guesses.  This comes from birthday attacks (collisions) on the 256 bit
-HMAC and random numbers (since release 3.0).  AES256 is used because it
-provides additional security if, for example, some key bits are revealed
-through timing attacks (see link above).
+2^128 guesses.  This comes from birthday collisions on the 256 bit HMAC and
+random numbers (since release 3.0).  AES256 is used because it provides
+additional security if, for example, some key bits are revealed through timing
+attacks (see link above).
 
 Latest News
 -----------
