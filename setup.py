@@ -9,7 +9,7 @@ setup(
     install_requires = ['pycrypto'],
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '3.0.0',
+    version = '3.0.1',
     description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -64,7 +64,9 @@ Why Should I Use Simple Crypt?
 What Else Should I Know?
 ------------------------
 
-* You must also install ``pycrypto``.
+* You must also install ``pycrypto``.  **Note** that pycrypto has parts
+  written in C so requires a full python install.  On some unix systems that
+  may mean adding a package like ``python-dev`` from your package manager.
 
 * In Python 3 the outputs from ``encrypt`` and ``decrypt`` are ``bytes``.
   If you started with string input then you can convert the output from

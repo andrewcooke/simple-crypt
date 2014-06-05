@@ -100,6 +100,11 @@ class TestEncryption(TestCase):
             assert False, 'expected error'
         except DecryptionException as e:
             assert 'Missing' in str(e), e
+        try:
+            decrypt('password', bytes(bytearray()))
+            assert False, 'expected error'
+        except DecryptionException as e:
+            assert 'Missing' in str(e), e
 
     def test_header(self):
         ctext = bytearray(encrypt('password', 'message'))
@@ -193,8 +198,8 @@ try:
             ptext = decrypt('password', encrypt('password', 'message'))
             assert ptext == 'message', ptext
             # this needs to be commented out when testing with 3.0 (syntax error)
-            ptext = decrypt(u'password', encrypt(u'password', u'message'))
-            assert ptext == u'message', ptext
+#            ptext = decrypt(u'password', encrypt(u'password', u'message'))
+#            assert ptext == u'message', ptext
 
 except NameError:
 
