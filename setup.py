@@ -9,7 +9,7 @@ setup(
     install_requires = ['pycrypto'],
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '3.0.1',
+    version = '3.0.2',
     description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',

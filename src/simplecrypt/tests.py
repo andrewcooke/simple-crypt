@@ -198,8 +198,8 @@ try:
             ptext = decrypt('password', encrypt('password', 'message'))
             assert ptext == 'message', ptext
             # this needs to be commented out when testing with 3.0 (syntax error)
-#            ptext = decrypt(u'password', encrypt(u'password', u'message'))
-#            assert ptext == u'message', ptext
+            ptext = decrypt(u'password', encrypt(u'password', u'message'))
+            assert ptext == u'message', ptext
 
 except NameError:
 
