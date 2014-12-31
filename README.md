@@ -167,6 +167,6 @@ Warnings
    by the version number).  So an adversary is able to recognise that the 
    data are encrypted (and not simply random).
 
-(c) 2012-2014 Andrew Cooke, andrew@acooke.org; 2013
+(c) 2012-2015 Andrew Cooke, andrew@acooke.org; 2013
 [d10n](https://github.com/d10n), david@bitinvert.com.  Released into the
 public domain for any use, but with absolutely no warranty.
