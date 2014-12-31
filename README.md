@@ -163,6 +163,10 @@ Warnings
    swap space on disk).  One way to reduce the risk is to have the crypto part
    of your code run as a separate process that exists for a limited time.
 
+3. All encrypted messages begin with the same 4 bytes (ASCII "sc", followed
+   by the version number).  So an adversary would be able to recognise that
+   the data are encrypted (and not simply random).
+
 (c) 2012-2014 Andrew Cooke, andrew@acooke.org; 2013
 [d10n](https://github.com/d10n), david@bitinvert.com.  Released into the
 public domain for any use, but with absolutely no warranty.
