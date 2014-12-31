@@ -4,7 +4,7 @@ simple-crypt
 Simple, secure encryption and decryption for Python 2.7 and 3.
 
 Now on [pypi](http://pypi.python.org/pypi/simple-crypt):
-```pip install simple-crypt````
+```pip install simple-crypt```
 (note that the pypi name includes a hyphen).
 
 This provides two functions, which encrypt and decrypt data, delegating all
