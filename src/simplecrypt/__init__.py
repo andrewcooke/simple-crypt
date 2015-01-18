@@ -7,13 +7,13 @@ from Crypto.Util import Counter
 
 # see: http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html
 
-EXPANSION_COUNT = 10000
+EXPANSION_COUNT = (10000, 10000, 100000)
 AES_KEY_LEN = 256
-SALT_LEN = (128, 256)
+SALT_LEN = (128, 256, 256)
 HASH = SHA256
 PREFIX = b'sc'
-HEADER = (PREFIX + b'\x00\x00', PREFIX + b'\x00\x01')
-LATEST = 1   # index into SALT_LEN, HEADER
+HEADER = (PREFIX + b'\x00\x00', PREFIX + b'\x00\x01', PREFIX + b'\x00\x02')
+LATEST = 2   # index into SALT_LEN, EXPANSION_COUNT, HEADER
 
 # lengths here are in bits, but pcrypto uses block size in bytes
 HALF_BLOCK = AES.block_size*8//2
@@ -40,7 +40,7 @@ def encrypt(password, data):
     data = _str_to_bytes(data)
     _assert_encrypt_length(data)
     salt = bytes(_random_bytes(SALT_LEN[LATEST]//8))
-    hmac_key, cipher_key = _expand_keys(password, salt)
+    hmac_key, cipher_key = _expand_keys(password, salt, EXPANSION_COUNT[LATEST])
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
     encrypted = cipher.encrypt(data)
@@ -48,7 +48,7 @@ def encrypt(password, data):
     return HEADER[LATEST] + salt + encrypted + hmac
 
 
-def decrypt(password, data, expansion_count=EXPANSION_COUNT):
+def decrypt(password, data):
     '''
     Decrypt some data.  Input must be bytes.
 
@@ -66,7 +66,7 @@ def decrypt(password, data, expansion_count=EXPANSION_COUNT):
     _assert_decrypt_length(data, version)
     raw = data[HEADER_LEN:]
     salt = raw[:SALT_LEN[version]//8]
-    hmac_key, cipher_key = _expand_keys(password, salt)
+    hmac_key, cipher_key = _expand_keys(password, salt, EXPANSION_COUNT[version])
     hmac = raw[-HASH.digest_size:]
     hmac2 = _hmac(hmac_key, data[:-HASH.digest_size])
     _assert_hmac(hmac_key, hmac, hmac2)
@@ -114,13 +114,13 @@ def _assert_hmac(key, hmac, hmac2):
     if _hmac(key, hmac) != _hmac(key, hmac2):
         raise DecryptionException('Bad password or corrupt / modified data.')
 
-def _expand_keys(password, salt):
+def _expand_keys(password, salt, expansion_count):
     if not salt: raise ValueError('Missing salt.')
     if not password: raise ValueError('Missing password.')
     key_len = AES_KEY_LEN // 8
     # the form of the prf below is taken from the code for PBKDF2
     keys = PBKDF2(_str_to_bytes(password), salt, dkLen=2*key_len,
-                  count=EXPANSION_COUNT, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
+                  count=expansion_count, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
     return keys[:key_len], keys[key_len:]
 
 def _random_bytes(n):

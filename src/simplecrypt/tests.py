@@ -56,7 +56,7 @@ class TestEncryption(TestCase):
         assert key == b'n\x88\xbe\x8b\xad~\xae\x9d\x9e\x10\xaa\x06\x12$\x03O', key
 
     def test_expand(self):
-        key1, key2 = _expand_keys('password', b'salt')
+        key1, key2 = _expand_keys('password', b'salt', 10000)
         assert key1 != key2
         assert key1 == b'^\xc0+\x91\xa4\xb5\x9coY\xdd_\xbeL\xa6I\xec\xe4\xfa\x85h\xcd\xb8\xba6\xcfABn\x88\x05R+', key1
         assert len(key1) * 8 == 256, len(key1)
@@ -184,6 +184,12 @@ class TestBackwardsCompatibility(TestCase):
     def test_known_1(self):
         # this was generated with python 3.3 and v3.0.0
         ctext = b'sc\x00\x01jX\xdc\xbdY\ra\xbf\x8e\x17\xec\xfd\xebQ\xa0\xe3\xce\x9b\xe4\xa7\xbd\x9d\x9dJ\x16\x98\x11_IU\x82L\x96\xe7\x96Q\x01\x94\xe6\xe4\xeb8\xc9\xf2\xdd<t(\xe0\xf4\x96jy\xc9\xf5\xc5\xb6\xa0\xc3@R\xd7\x7f\xed\xc0=\x18\xfcX\xf0\xf4'
+        ptext = decrypt('password', ctext)
+        assert ptext == b'message', ptext
+
+    def test_known_2(self):
+        # this was generated with python 3.3 and v4.0.0
+        ctext = b'sc\x00\x02g)x\x7f\xbf\xc8\xe5\xff\roR\x9b\x0e#X\xb8eW=\x93,\x85I{\x9a{\x9d\x07\xf4TUj\xfek/\xed\xff\xde\xaa|\\`\x1a\xc1\xf9\x81\x12\x0blE\r$\x827\x1b\xe9Gz\xf2\x87T\xd1gW\x9ez\xd9Y{\x80\x1a'
         ptext = decrypt('password', ctext)
         assert ptext == b'message', ptext
 

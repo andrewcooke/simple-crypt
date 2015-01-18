@@ -72,6 +72,17 @@ encrypted data, compared to the message) is constant.  It looks a lot here,
 because the message is very small, but for most practical uses should not be
 an issue.
 
+Alternatives
+------------
+
+This code is intended to be "easy to use" and "hard to use wrong".  An
+alternative for more experienced users (who might, for example, want
+to use more rounds in the PBKDF, or an explicit key) is
+[python-aead](https://github.com/Ayrx/python-aead).
+
+As far as I can tell, python-aead uses very similar algorithms to
+those found here.
+
 Algorithms
 ----------
 
@@ -81,7 +92,7 @@ as far as I can tell:
 
 * The password is expanded to two 256 bit keys using PBKDF2 with a 256 bit
   random salt (increased from 128 bits in release 3.0.0), SHA256, and
-  10,000 iterations.
+  100,000 iterations (increased from 10,000 in release 4.0.0).
 
 * AES256 CTR mode is used to encrypt the data with one key.  The first 64 bits
   of the salt are used as a message nonce (of half the block size); the
@@ -122,27 +133,23 @@ attacks (see link above or chapter 7 of Practical Cryptography).
 Latest News
 -----------
 
+Release 4.0 increases the number of iterations used in the PBKDF (this
+will make encyption and decryption noticeably slower) and adds a
+reference to [python-aead](https://github.com/Ayrx/python-aead).
+
 Release 3.0 [increases the size of the salt used from 128 to 256
-bits](http://acooke.org/cute/ChangingSa0.html).  The header has also changed,
-so data encrypted by previous releases can be detected and decrypted
-correctly.
+bits](http://acooke.org/cute/ChangingSa0.html).
 
-Note that data encrypted by release 3.0 onwards cannot be decrypted by earlier
-releases (instead, an error with a helpful message is generated).
+The header changes with each major version release (after 2.0), so
+data encrypted by previous releases can be detected and decrypted
+correctly.  However, data encrypted by later major releases (after
+2.0) cannot be decrypted by earlier releases (instead, an error with a
+helpful message is generated).
 
-Previous releases were not consistent with the
-[advice on random IDs
-here](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html).
-The salt is used both to set the CTR mode offset *and*
-to change the key (a random offset alone is not good practice), so must never
-repeat.  Changing from 128 to 256 bits moves the likelihood from "very unlikely"
-to "not in the age of the universe".
-
-My apologies for not getting this correct in earlier releases.
-
-Release 2.0 should be fully compatible with 1.0 on Python 3 (same API and
-identical results).  However, thanks to [d10n](https://github.com/d10n) it now
-also supports Python 2.7 (tested with Python 2.7.5, 3.0.1 and 3.3.2).
+Release 2.0 was fully compatible with 1.0 on Python 3 (same API and
+identical results).  However, thanks to
+[d10n](https://github.com/d10n) it also supported Python 2.7 (tested
+with Python 2.7.5, 3.0.1 and 3.3.2).
 
 I (Andrew Cooke) am not sure Python 2.7 support is such a good idea.  You should
 really use something like [keyczar](http://www.keyczar.org/).  But there seems
