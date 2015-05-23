@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from binascii import hexlify
 
 from functools import reduce
 from unittest import TestCase, main
@@ -6,10 +7,11 @@ from unittest import TestCase, main
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Util import Counter
+from math import sqrt
 
 from simplecrypt import encrypt, decrypt, _expand_keys, DecryptionException, \
     _random_bytes, HEADER, HALF_BLOCK, SALT_LEN, _assert_header_prefix, \
-    _assert_header_version, LATEST, HEADER_LEN
+    _assert_header_version, LATEST, HEADER_LEN, _hide
 
 
 class TestEncryption(TestCase):
@@ -171,6 +173,38 @@ class TestRandBytes(TestCase):
         assert reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
         b = _random_bytes(255)
         assert not reduce(lambda a, b: a and b, (n in b for n in range(256)), True)
+
+    def test_hide_mean(self):
+        for l in range(0, 40):
+            n = 100  # works with 10000 but takes time
+            sum = [0 for _ in range(n)]
+            for _ in range(n):
+                rs = _random_bytes(l)
+                assert len(rs) == l
+                for (i, r) in enumerate(rs):
+                    sum[i] += r
+            for i in range(l):
+                mean = sum[i] / (127.5 * n)
+                assert abs(mean - 1) < 3.3 / sqrt(n), "length %d sum %d for %d samples, norm to %f" % (l, sum[i], n, mean)
+
+    def test_hide_bits(self):
+        # this fails about 1 in 256 times per test (at size 1 byte)
+        # so we make sure no combination of (l, i, j) fails twice
+        bad = []
+        for retry in range(8):
+            for l in range(1, 40):
+                rs = _random_bytes(l)
+                h1 = _hide(rs)
+                for i in range(l):
+                    for j in range(8):
+                        flipped = bytearray(rs)
+                        assert h1 == _hide(flipped)
+                        flipped[i] ^= 2**j
+                        h2 = _hide(flipped)
+                        if h1 == h2:
+                            state = (l, i, j)
+                            assert state not in bad, "%s %s / %s" % (state, hexlify(h1), hexlify(h2))
+                            bad.append(state)
 
 
 class TestBackwardsCompatibility(TestCase):

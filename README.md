@@ -133,6 +133,11 @@ attacks (see link above or chapter 7 of Practical Cryptography).
 Latest News
 -----------
 
+Release 4.1 obscures the output of the random number generator.  This should
+not be necessary, but guards against a possible attack if the random number
+generator is compromised in some way.  Functionality and interoperability are
+otherwise unchanged.
+
 Release 4.0 increases the number of iterations used in the PBKDF (this
 will make encyption and decryption noticeably slower) and adds a
 reference to [python-aead](https://github.com/Ayrx/python-aead).
@@ -172,7 +177,9 @@ Warnings
 
 3. All encrypted messages start with a 4 byte header (ASCII "sc", followed
    by the version number).  So an adversary is able to recognise that the 
-   data are encrypted (and not simply random).
+   data are encrypted (and not simply random).  You can avoid this by discarding
+   the first 4 bytes of the encrypted data, but you must of course replace them
+   before decrypting, and the code will not inter-operate between versions.
 
 (c) 2012-2015 Andrew Cooke, andrew@acooke.org; 2013
 [d10n](https://github.com/d10n), david@bitinvert.com.  Released into the

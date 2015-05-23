@@ -31,7 +31,7 @@ def encrypt(password, data):
     using UTF-8).
 
     @param password: The secret value used as the basis for a key.
-     This should be as long as varied as possible.  Try to avoid common words.
+    This should be as long as varied as possible.  Try to avoid common words.
 
     @param data: The data to be encrypted.
 
@@ -53,7 +53,7 @@ def decrypt(password, data):
     Decrypt some data.  Input must be bytes.
 
     @param password: The secret value used as the basis for a key.
-     This should be as long as varied as possible.  Try to avoid common words.
+    This should be as long as varied as possible.  Try to avoid common words.
 
     @param data: The data to be decrypted, typically as bytes.
 
@@ -104,8 +104,9 @@ def _assert_header_version(data):
         try:
             return HEADER.index(data[:HEADER_LEN])
         except:
-            raise DecryptionException('The data appear to be encrypted with a more recent version of simple-crypt (bad header). ' +
-                                      'Please update the library and try again.')
+            raise DecryptionException(
+                'The data appear to be encrypted with a more recent version of simple-crypt (bad header). ' +
+                'Please update the library and try again.')
     else:
         raise DecryptionException('Missing header.')
 
@@ -114,17 +115,26 @@ def _assert_hmac(key, hmac, hmac2):
     if _hmac(key, hmac) != _hmac(key, hmac2):
         raise DecryptionException('Bad password or corrupt / modified data.')
 
+def _pbkdf2(password, salt, n_bytes, count):
+    # the form of the prf below is taken from the code for PBKDF2
+    return PBKDF2(password, salt, dkLen=n_bytes,
+                  count=count, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
+
 def _expand_keys(password, salt, expansion_count):
     if not salt: raise ValueError('Missing salt.')
     if not password: raise ValueError('Missing password.')
     key_len = AES_KEY_LEN // 8
-    # the form of the prf below is taken from the code for PBKDF2
-    keys = PBKDF2(_str_to_bytes(password), salt, dkLen=2*key_len,
-                  count=expansion_count, prf=lambda p,s: HMAC.new(p,s,HASH).digest())
+    keys = _pbkdf2(_str_to_bytes(password), salt, 2*key_len, expansion_count)
     return keys[:key_len], keys[key_len:]
 
+def _hide(ranbytes):
+    # appelbaum recommends obscuring output from random number generators since it can reveal state.
+    # we can do this explicitly with a hash, but this is what a PBKDF does anyway, so use one.
+    # we don't care about the salt or work factor because there is a large space of values anyway.
+    return bytearray(_pbkdf2(bytes(ranbytes), b'', len(ranbytes), 1))
+
 def _random_bytes(n):
-    return bytearray(getrandbits(8) for _ in range(n))
+    return _hide(bytearray(getrandbits(8) for _ in range(n)))
 
 def _hmac(key, data):
     return HMAC.new(key, data, HASH).digest()
