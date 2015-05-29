@@ -87,7 +87,8 @@ Algorithms
 ----------
 
 The algorithms used follow the recommendations at
-http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html,
+http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html 
+and http://www.daemonology.net/blog/2009-06-24-encrypt-then-mac.html,
 as far as I can tell:
 
 * The password is expanded to two 256 bit keys using PBKDF2 with a 256 bit
