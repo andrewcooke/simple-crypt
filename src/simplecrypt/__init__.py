@@ -51,6 +51,14 @@ def _encrypt_one(data, salt, cipher, hmac):
     hmac.update(encrypted)
     return HEADER[LATEST] + salt + encrypted + hmac.digest()
 
+def _encrypt_iter(data, salt, cipher, hmac):
+    yield HEADER[LATEST] + salt
+    for ptext in data:
+        ptext = _str_to_bytes(ptext)
+        ctext = cipher.encrypt(ptext)
+        yield ctext
+        hmac.update(ctext)
+    yield hmac.digest()
 
 def decrypt(password, data):
     '''
