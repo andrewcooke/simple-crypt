@@ -185,7 +185,7 @@ Warnings
 4. I have considered extending the code to handle inputs larger than can
    be held in memory.  While this is possible, the HMAC is not validated until
    decrypted data are returned.  Which is asking for trouble - people are
-   going to use the data as theya re decrypted - and shows that the current
+   going to use the data as they are decrypted - and shows that the current
    design is inappropriate for such use.  Someone needs to design a better
    solution (eg. with HMAC checks for each "block" - but even that allows
    data to be silently truncated at the end of a block).
