@@ -14,6 +14,7 @@ HASH = SHA256
 PREFIX = b'sc'
 HEADER = (PREFIX + b'\x00\x00', PREFIX + b'\x00\x01', PREFIX + b'\x00\x02')
 LATEST = 2   # index into SALT_LEN, EXPANSION_COUNT, HEADER
+UNICODE = type(b''.decode('utf8'))
 
 # lengths here are in bits, but pcrypto uses block size in bytes
 HALF_BLOCK = AES.block_size*8//2
@@ -37,15 +38,18 @@ def encrypt(password, data):
 
     @return: The encrypted data, as bytes.
     '''
-    data = _str_to_bytes(data)
-    _assert_encrypt_length(data)
     salt = bytes(_random_bytes(SALT_LEN[LATEST]//8))
     hmac_key, cipher_key = _expand_keys(password, salt, EXPANSION_COUNT[LATEST])
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
+    hmac = _hmac(hmac_key, HEADER[LATEST] + salt)
+    return _encrypt_one(data, salt, cipher, hmac)
+
+def _encrypt_one(data, salt, cipher, hmac):
+    data = _str_to_bytes(data)
     encrypted = cipher.encrypt(data)
-    hmac = _hmac(hmac_key, HEADER[LATEST] + salt + encrypted)
-    return HEADER[LATEST] + salt + encrypted + hmac
+    hmac.update(encrypted)
+    return HEADER[LATEST] + salt + encrypted + hmac.digest()
 
 
 def decrypt(password, data):
@@ -68,7 +72,7 @@ def decrypt(password, data):
     salt = raw[:SALT_LEN[version]//8]
     hmac_key, cipher_key = _expand_keys(password, salt, EXPANSION_COUNT[version])
     hmac = raw[-HASH.digest_size:]
-    hmac2 = _hmac(hmac_key, data[:-HASH.digest_size])
+    hmac2 = _hmac(hmac_key, data[:-HASH.digest_size]).digest()
     _assert_hmac(hmac_key, hmac, hmac2)
     counter = Counter.new(HALF_BLOCK, prefix=salt[:HALF_BLOCK//8])
     cipher = AES.new(cipher_key, AES.MODE_CTR, counter=counter)
@@ -81,15 +85,9 @@ class EncryptionException(Exception): pass
 
 def _assert_not_unicode(data):
     # warn confused users
-    u_type = type(b''.decode('utf8'))
-    if isinstance(data, u_type):
+    if isinstance(data, UNICODE):
         raise DecryptionException('Data to decrypt must be bytes; ' +
         'you cannot use a string because no string encoding will accept all possible characters.')
-
-def _assert_encrypt_length(data):
-    # for AES this is never going to fail
-    if len(data) > 2**HALF_BLOCK:
-        raise EncryptionException('Message too long.')
 
 def _assert_decrypt_length(data, version):
     if len(data) < HEADER_LEN + SALT_LEN[version]//8 + HASH.digest_size:
@@ -112,7 +110,7 @@ def _assert_header_version(data):
 
 def _assert_hmac(key, hmac, hmac2):
     # https://www.isecpartners.com/news-events/news/2011/february/double-hmac-verification.aspx
-    if _hmac(key, hmac) != _hmac(key, hmac2):
+    if _hmac(key, hmac).digest() != _hmac(key, hmac2).digest():
         raise DecryptionException('Bad password or corrupt / modified data.')
 
 def _pbkdf2(password, salt, n_bytes, count):
@@ -137,10 +135,9 @@ def _random_bytes(n):
     return _hide(bytearray(getrandbits(8) for _ in range(n)))
 
 def _hmac(key, data):
-    return HMAC.new(key, data, HASH).digest()
+    return HMAC.new(key, data, HASH)
 
 def _str_to_bytes(data):
-    u_type = type(b''.decode('utf8'))
-    if isinstance(data, u_type):
+    if isinstance(data, UNICODE):
         return data.encode('utf8')
     return data
