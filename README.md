@@ -1,4 +1,4 @@
-$ simple-crypt
+# simple-crypt
 
 Simple, secure encryption and decryption for Python 2.7 and 3.
 
