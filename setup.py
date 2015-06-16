@@ -9,7 +9,7 @@ setup(
     install_requires = ['pycrypto'],
     packages = ['simplecrypt'],
     package_dir = {'': 'src'},
-    version = '4.1.0',
+    version = '4.1.1',
     description = 'Simple, secure encryption and decryption for Python 2.7 and 3',
     author = 'Andrew Cooke',
     author_email = 'andrew@acooke.org',
@@ -79,6 +79,8 @@ What Else Should I Know?
 
     mystring = decrypt('password', ciphertext).decode('utf8')
 
+
+* More documentation and **examples** on `github <https://github.com/andrewcooke/simple-crypt>`_.
 
 * Later versions *can* decrypt data from previous versions, but data
   encrypted by later (major) versions *cannot* be decrypted by earlier
