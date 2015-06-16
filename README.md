@@ -19,7 +19,7 @@ The two calls:
 ```python
 from simplecrypt import encrypt, decrypt
 
-ciphertext = encrypt(password, 'my secret')
+ciphertext = encrypt(password, 'my secret message')
 plaintext = decrypt(password, ciphertext)
 ```
 
