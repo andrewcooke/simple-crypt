@@ -76,8 +76,8 @@ an issue.
 
 ### Using Files
 
-If the file "encrypted.txt" does not exist, then it is created with
-the contents "10 green bottles".
+When the following prgram is run, if the file "encrypted.txt" does not
+exist, then it is created with the contents "10 green bottles".
 
 If the file does exist, is is read, and the number of green bottles is
 reduced.  If there are no green bottles left, then the file is
