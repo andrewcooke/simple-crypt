@@ -120,9 +120,9 @@ def read_encrypted(password, filename, string=True):
         else:
             return plaintext
 
-def write_encrypted(password, filename, data):
+def write_encrypted(password, filename, plaintext):
     with open(filename, 'wb') as output:
-        ciphertext = encrypt(password, data)
+        ciphertext = encrypt(password, plaintext)
         output.write(ciphertext)
 
 if __name__ == '__main__':
