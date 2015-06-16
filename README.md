@@ -1,5 +1,4 @@
-simple-crypt
-============
+$ simple-crypt
 
 Simple, secure encryption and decryption for Python 2.7 and 3.
 
@@ -11,8 +10,9 @@ This provides two functions, which encrypt and decrypt data, delegating all
 the hard work to the [pycrypto](https://www.dlitz.net/software/pycrypto)
 library (which must also be installed).
 
-Examples
---------
+## Examples
+
+### The API
 
 The two calls:
 
@@ -22,6 +22,8 @@ from simplecrypt import encrypt, decrypt
 ciphertext = encrypt(password, 'my secret')
 plaintext = decrypt(password, ciphertext)
 ```
+
+### Interactive Use
 
 A simple Python 3 program:
 
@@ -72,8 +74,84 @@ encrypted data, compared to the message) is constant.  It looks a lot here,
 because the message is very small, but for most practical uses should not be
 an issue.
 
-Alternatives
-------------
+### Using Files
+
+If the file "encrypted.txt" does not exist, then it is created with
+the contents "10 green bottles".
+
+If the file does exist, is is read, and the number of green bottles is
+reduced.  If there are no green bottles left, then the file is
+deleted, otherwise it is written with the new number.
+
+
+```python
+from simplecrypt import encrypt, decrypt
+from os.path import exists
+from os import unlink
+
+PASSWORD = "secret"
+FILENAME = "encrypted.txt"
+
+def main():
+
+    if exists(FILENAME):
+        print("reading...")
+        data = read_encrypted(PASSWORD, FILENAME)
+        print("read %s from %s" % (data, FILENAME))
+        n_bottles = int(data.split(" ")[0]) - 1
+    else:
+        n_bottles = 10
+    
+    if n_bottles > 0:
+        data = "%d green bottles" % n_bottles
+        print("writing...")
+        write_encrypted(PASSWORD, FILENAME, data)
+        print("wrote %s to %s" % (data, FILENAME))
+    else:
+        unlink(FILENAME)
+        print("deleted %s" % FILENAME)
+
+def read_encrypted(password, filename, string=True):
+    with open(filename, 'rb') as input:
+        ciphertext = input.read()
+        plaintext = decrypt(password, ciphertext)
+        if string:
+            return plaintext.decode('utf8')
+        else:
+            return plaintext
+
+def write_encrypted(password, filename, data):
+    with open(filename, 'wb') as output:
+        ciphertext = encrypt(password, data)
+        output.write(ciphertext)
+
+if __name__ == '__main__':
+    main()
+```
+
+This program is included in
+[src/simplecrypt/example-file.py](src/simplecrypt/example-file.py) and
+we can run it as follows:
+
+```
+> python3 src/simplecrypt/example-file.py
+writing...
+wrote 10 green bottles to encrypted.txt
+> python3 src/simplecrypt/example-file.py
+reading...
+read 10 green bottles from encrypted.txt
+writing...
+wrote 9 green bottles to encrypted.txt
+> 
+...
+> python3 src/simplecrypt/example-file.py
+reading...
+read 1 green bottles from encrypted.txt
+deleted encrypted.txt
+>
+```
+
+## Alternatives
 
 This code is intended to be "easy to use" and "hard to use wrong".  An
 alternative for more experienced users (who might, for example, want
@@ -83,8 +161,7 @@ to use more rounds in the PBKDF, or an explicit key) is
 As far as I can tell, python-aead uses very similar algorithms to
 those found here.
 
-Algorithms
-----------
+## Algorithms
 
 The algorithms used follow the recommendations at
 http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html 
@@ -131,8 +208,7 @@ random numbers (since release 3.0).  AES256 is used because it provides
 additional security if, for example, some key bits are revealed through timing
 attacks (see link above or chapter 7 of Practical Cryptography).
 
-Latest News
------------
+## Latest News
 
 Release 4.1 obscures the output of the random number generator.  This should
 not be necessary, but guards against a possible attack if the random number
@@ -161,8 +237,7 @@ I (Andrew Cooke) am not sure Python 2.7 support is such a good idea.  You should
 really use something like [keyczar](http://www.keyczar.org/).  But there seems
 to be a demand for this, so better the devil you know...
 
-Warnings
---------
+## Warnings
 
 1. The whole idea of encrypting with a password is not so smart these days.
    If you think you need to do this, try reading about Google's
