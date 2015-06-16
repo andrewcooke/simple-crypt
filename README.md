@@ -76,7 +76,7 @@ an issue.
 
 ### Using Files
 
-When the following prgram is run, if the file "encrypted.txt" does not
+When the following program is run, if the file "encrypted.txt" does not
 exist, then it is created with the contents "10 green bottles".
 
 If the file does exist, is is read, and the number of green bottles is
@@ -216,7 +216,7 @@ generator is compromised in some way.  Functionality and interoperability are
 otherwise unchanged.
 
 Release 4.0 increases the number of iterations used in the PBKDF (this
-will make encyption and decryption noticeably slower) and adds a
+will make encryption and decryption noticeably slower) and adds a
 reference to [python-aead](https://github.com/Ayrx/python-aead).
 
 Release 3.0 [increases the size of the salt used from 128 to 256
@@ -252,7 +252,7 @@ to be a demand for this, so better the devil you know...
    of your code run as a separate process that exists for a limited time.
 
 3. All encrypted messages start with a 4 byte header (ASCII "sc", followed
-   by the version number).  So an adversary is able to recognise that the 
+   by the version number).  So an adversary is able to recognize that the 
    data are encrypted (and not simply random).  You can avoid this by discarding
    the first 4 bytes of the encrypted data, but you must of course replace them
    before decrypting, and the code will not inter-operate between versions.
