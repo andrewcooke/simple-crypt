@@ -178,7 +178,7 @@ as far as I can tell:
   of http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf).
 
 * An encrypted messages starts with a 4 byte header ("sc" in ASCII followed
-  by either two zero bytes (pre-3.0), or a zero and a one).
+  by two bytes containing version data).
 
 * An SHA256 HMAC (of header, salt, and encrypted message) is calculated using
   the other key.
