@@ -166,7 +166,7 @@ passwords every second.
 
 So the pause on encryption and decryption is actually a sign that the
 library is protecting you.  If this is unacceptable for your program
-than they may need to look for a different solution.  I'm sorry, but
+than you may need to look for a different solution.  I'm sorry, but
 this is the trade-off I chose when writing simple-crypt.
 
 ## Alternatives
