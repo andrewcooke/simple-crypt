@@ -155,7 +155,9 @@ deleted encrypted.txt
 
 Both encryption and decryption are relatively slow.  This is because
 the library is designed to make the key (the password) hard to guess
-(it uses a PBKDF, which can take a couple of seconds to run).
+(it uses a
+[PBKDF](https://en.wikipedia.org/wiki/Key_derivation_function), which
+can take a couple of seconds to run).
 
 In simple terms, if an attacker tries to decrypt the data by guessing
 keys, then they *also* have to wait for a couple of seconds for each
