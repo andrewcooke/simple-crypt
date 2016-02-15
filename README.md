@@ -160,9 +160,9 @@ the library is designed to make the key (the password) hard to guess
 can take a couple of seconds to run).
 
 In simple terms, if an attacker tries to decrypt the data by guessing
-keys, then they *also* have to wait for a couple of seconds for each
-guess.  This stops an attacker from trying "thousands" of different
-passwords every second.
+passwords, then they *also* have to wait for a couple of seconds for
+each guess.  This stops an attacker from trying "thousands" of
+different passwords every second.
 
 So the pause on encryption and decryption is actually a sign that the
 library is protecting you.  If this is unacceptable for your program
