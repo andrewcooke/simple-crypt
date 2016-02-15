@@ -151,6 +151,22 @@ deleted encrypted.txt
 >
 ```
 
+## Speed
+
+Both encryption and decryption are relatively slow.  This is because
+the library is designed to make the key (the password) hard to guess
+(it uses a PBKDF, which can take a couple of seconds to run).
+
+In simple terms, if an attacker tries to decrypt the data by guessing
+keys, then they *also* have to wait for a couple of seconds for each
+guess.  This stops an attacker from trying "thousands" of different
+passwords every second.
+
+So the pause on encryption and decryption is actually a sign that the
+library is protetcing you.  If this is unacceptable for your program
+than they may need to look for a different solution.  I'm sorry, but
+this is the trade-off I chose when writing simple-crypt.
+
 ## Alternatives
 
 This code is intended to be "easy to use" and "hard to use wrong".  An
