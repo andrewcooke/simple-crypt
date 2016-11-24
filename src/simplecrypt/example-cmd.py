@@ -34,13 +34,13 @@ def parse_args():
     while args:
         head = args.pop(0)
         if head == '-p':
-            password = args.pop()
+            password = args.pop(0)
         elif head == '-e':
             action = encrypt
         elif head == '-d':
             action = decrypt
         elif head == '-o':
-            outfile = open(args.pop(), 'wb')
+            outfile = open(args.pop(0), 'wb')
         elif not args and not head.startswith('-'):
             infile = open(head, 'rb')
         else:
